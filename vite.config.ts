@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import glsl from "vite-plugin-glsl";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  base: '/maritime-terrain-visualization/'
-})
+  plugins: [react(), glsl()],
+  base: "/maritime-terrain-visualization/",
+});
