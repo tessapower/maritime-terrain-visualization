@@ -1,7 +1,13 @@
 /// TerrainGenerator.ts: generates a terrain procedurally
 
 import { createNoise2D } from "simplex-noise";
-import { randInRangeInt, euclideanDistance } from "../utils/Math";
+import {
+  randInRangeInt,
+  normalize,
+  euclideanDistance,
+  lerp,
+  easeInOutSine,
+} from "../utils/Math";
 
 export default class TerrainGenerator {
   // returns a value between -1 and 1
@@ -166,7 +172,10 @@ export default class TerrainGenerator {
     // Uncomment to see without warping effect
     // const islands = this.voronoi(x, y);
 
-    if (islands < this.islandThreshold) return this.waterLevel;
+    if (islands <= this.landTransition.end) {
+      // Definitely water
+      return this.waterLevel;
+    }
 
     // Layer 2: terrain * 30
     // Hills and valleys (0-30 range)
@@ -182,9 +191,26 @@ export default class TerrainGenerator {
     // Uncomment to see without this effect
     //const peaks = 0;
 
+    const landHeight = islands * 50 + terrain * 30 + peaks * 20;
+
+    // Check if we need to start easing into the water
+    if (islands <= this.landTransition.start) {
+      // Normalize islands between start and end of land transition zone
+      const t = normalize(
+        islands,
+        this.landTransition.end,
+        this.landTransition.start,
+      );
+      // Eased value indicates progress between start and end of land transition
+      const easedT = easeInOutSine(t);
+      // TODO: replace hardcoded islands multiplier with UI control
+
+      return lerp(this.waterLevel, landHeight, easedT);
+    }
+
     // Total possible height: 0 to 100
     // TODO: replace hardcoded amplitude multipliers with UI controls
-    return islands * 50 + terrain * 30 + peaks * 20;
+    return landHeight;
   }
 
   /**

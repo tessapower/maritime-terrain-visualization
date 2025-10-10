@@ -91,6 +91,25 @@ export class SceneManager {
       this.scene.add(this.terrain);
     }
 
+    //------------------------------------------------------------ Water ----//
+    {
+      const waterGeometry = new THREE.PlaneGeometry(
+        this.planeSize * 1.5,
+        this.planeSize * 1.5,
+      );
+      const waterMaterial = new THREE.MeshStandardMaterial({
+        color: 0x4a6a8a,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+      });
+
+      const waterPlane = new THREE.Mesh(waterGeometry, waterMaterial);
+      waterPlane.position.y = 0; // Sea-level
+      waterPlane.rotation.x = -Math.PI / 2;
+      this.scene.add(waterPlane);
+    }
+
     //---------------------------------------------------------- Lighting ----//
     {
       // Ambient light
