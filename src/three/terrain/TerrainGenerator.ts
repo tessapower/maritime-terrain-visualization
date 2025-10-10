@@ -5,7 +5,7 @@ import { randInRangeInt, euclideanDistance } from "../utils/Math";
 
 export default class TerrainGenerator {
   private readonly simplex = createNoise2D();
-  numIslands: number = 11;
+  numIslands: number = 7;
   islandThreshold: number = 0.3;
   waterLevel: number = -10;
 
@@ -59,6 +59,17 @@ export default class TerrainGenerator {
     const value = Math.exp(-normalizedDistance * 32);
 
     return value;
+  }
+
+  /**
+   * Rigid Noise: returns a value between [0, 1]
+   *
+   * Source(s):
+   */
+  private ridgedNoise(x: number, y: number): number {
+    // Invert valleys to become ridges
+    // return Math.abs(this.simplex(x, y));
+    return 1 - Math.abs(this.simplex(x, y));
   }
 
   /**
@@ -132,7 +143,19 @@ export default class TerrainGenerator {
       return this.waterLevel; // -10
     }
 
-    return islands; // TEMP: placeholder to satisfy ESLint
+
+    if (islands < this.islandThreshold) return this.waterLevel;
+
+    // Layer 2: terrain * 30
+    // Hills and valleys (0-30 range)
+    const terrain = this.simplex(x * 0.05, y * 0.05);
+
+    // Layer 3: peaks * 20
+    // Sharp mountain ridges (0-20 range)
+    const peaks = this.ridgedNoise(x * 0.1, y * 0.1);
+
+    // Total possible height: 0 to 100
+    return islands * 50 + terrain * 30 + peaks * 20;
   }
 
   /**
