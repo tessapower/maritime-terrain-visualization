@@ -15,6 +15,8 @@ export class SceneManager {
   private readonly resolution: number = 256;
   private animationId: number | null = null;
 
+  private planeSize: number = 500;
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.scene = new THREE.Scene();
@@ -55,8 +57,8 @@ export class SceneManager {
     //------------------------------------------------------ TerrainPlane ----//
     {
       const planeGeometry = new THREE.PlaneGeometry(
-        500,
-        500,
+        this.planeSize,
+        this.planeSize,
         this.resolution,
         this.resolution,
       );
@@ -65,14 +67,6 @@ export class SceneManager {
         this.resolution + 1,
         this.resolution + 1,
       );
-
-      console.log("Min height:", Math.min(...heightMap));
-      console.log("Max height:", Math.max(...heightMap));
-      console.log(
-        "Average height:",
-        heightMap.reduce((a, b) => a + b, 0) / heightMap.length,
-      );
-      console.log("Sample heights:", heightMap.slice(0, 20));
 
       // Set the vertex heights
       const vertices = planeGeometry.attributes.position;

@@ -6,13 +6,18 @@ import { randInRangeInt, euclideanDistance } from "../utils/Math";
 export default class TerrainGenerator {
   // returns a value between -1 and 1
   private readonly simplex = createNoise2D();
-  numIslands: number = 7;
-  islandThreshold: number = 0.3;
-  waterLevel: number = -10;
-  warpStrength: number = 50;
-  warpOffset: number = 100;
+  private numIslands: number = 7;
+  private islandThreshold: number = 0.3;
+  private landTransition: { start: number; end: number } = {
+    start: this.islandThreshold + 0.1,
+    end: this.islandThreshold - 0.05,
+  };
+
+  private waterLevel: number = -10;
+  private warpStrength: number = 50;
+  private warpOffset: number = 100;
   // Oscillations per distance. Doubling makes everything half the size.
-  warpFrequency: number = 0.01;
+  private warpFrequency: number = 0.01;
 
   private seedPoints: Array<{ x: number; y: number }> | undefined;
 
@@ -69,9 +74,9 @@ export default class TerrainGenerator {
   }
 
   /**
-   * Rigid Noise: returns a value between [0, 1]
+   * Ridged Noise: returns a value between [0, 1]
    *
-   * Source(s):
+   * Source(s): https://www.redblobgames.com/maps/terrain-from-noise/#ridged
    */
   private ridgedNoise(x: number, y: number): number {
     // Invert valleys to become ridges
