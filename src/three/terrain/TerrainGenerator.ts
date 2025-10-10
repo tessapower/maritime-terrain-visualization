@@ -10,6 +10,7 @@ export default class TerrainGenerator {
   islandThreshold: number = 0.3;
   waterLevel: number = -10;
   warpStrength: number = 50;
+  warpOffset: number = 100;
   // Oscillations per distance. Doubling makes everything half the size.
   warpFrequency: number = 0.01;
 
@@ -148,7 +149,10 @@ export default class TerrainGenerator {
         this.warpStrength;
     const warpedY =
       y +
-      this.simplex(x * this.warpFrequency + 100, y * this.warpFrequency) *
+      this.simplex(
+        x * this.warpFrequency + this.warpOffset,
+        y * this.warpFrequency,
+      ) *
         this.warpStrength;
 
     // Layer 1: islands * 50
@@ -162,14 +166,14 @@ export default class TerrainGenerator {
     // Layer 2: terrain * 30
     // Hills and valleys (0-30 range)
     // TODO: replace hardcoded frequency multipliers with UI controls
-    const terrain = this.simplex(x * 0.05, y * 0.05);
+    const terrain = this.simplex(x * 0.03, y * 0.03);
     // Uncomment to see without this effect
     //const terrain = 0;
 
     // Layer 3: peaks * 20
     // Sharp mountain ridges (0-20 range)
     // TODO: replace hardcoded frequency multipliers with UI controls
-    const peaks = this.ridgedNoise(x * 0.1, y * 0.1);
+    const peaks = 0.45 * this.ridgedNoise(x * 0.1, y * 0.1);
     // Uncomment to see without this effect
     //const peaks = 0;
 
