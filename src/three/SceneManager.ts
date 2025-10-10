@@ -77,7 +77,7 @@ export class SceneManager {
       // Set the vertex heights
       const vertices = planeGeometry.attributes.position;
       for (let i = 0; i < vertices.count; i++) {
-        vertices.setZ(i, heightMap[i] * 45);
+        vertices.setZ(i, heightMap[i]);
       }
 
       vertices.needsUpdate = true;
