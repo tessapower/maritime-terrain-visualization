@@ -25,4 +25,35 @@ function euclideanDistance(
   );
 }
 
-export { randInRangeInt, normalize, euclideanDistance };
+
+/**
+ * An easing function, based on the Sine function.
+ *
+ * Source: https://easings.net/#easeInOutSine
+ *
+ * @param x Absolute progress through the range in the bounds of 0
+ * (beginning) and 1 (end).
+ */
+function easeInOutSine(x: number): number {
+  return -(Math.cos(Math.PI * x) - 1) / 2;
+}
+
+/**
+ * Returns a linearly interpolated value based on the given range [start, end], and
+ * progress through the range x [0, 1].
+ *
+ * @param start Beginning of the range.
+ * @param end End of the range
+ * @param x Progress through the range as a normalized value: [0, 1]
+ */
+function lerp(start: number, end: number, x: number): number {
+  return start * (1 - x) + end * x;
+}
+
+export {
+  randInRangeInt,
+  normalize,
+  euclideanDistance,
+  easeInOutSine,
+  lerp,
+};
