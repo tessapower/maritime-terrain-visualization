@@ -4,10 +4,14 @@ import { createNoise2D } from "simplex-noise";
 import { randInRangeInt, euclideanDistance } from "../utils/Math";
 
 export default class TerrainGenerator {
+  // returns a value between -1 and 1
   private readonly simplex = createNoise2D();
   numIslands: number = 7;
   islandThreshold: number = 0.3;
   waterLevel: number = -10;
+  warpStrength: number = 50;
+  // Oscillations per distance. Doubling makes everything half the size.
+  warpFrequency: number = 0.01;
 
   private seedPoints: Array<{ x: number; y: number }> | undefined;
 
@@ -31,6 +35,8 @@ export default class TerrainGenerator {
 
   /**
    * Voronoi Noise: returns a value between [0, 1]
+   *
+   * Source(s): https://iquilezles.org/articles/cellularffx/
    */
   private voronoi(x: number, y: number): number {
     if (!this.seedPoints || this.seedPoints.length === 0) {
@@ -109,9 +115,12 @@ export default class TerrainGenerator {
     // Source(s):
     // - https://iquilezles.org/articles/warp/
     // - https://thebookofshaders.com/11/
-    //
-    // WITHOUT Domain Warp:
-    // Input coords → Voronoi → Island shape
+    // - https://paulbourke.net/fractals/noise/
+    // - https://www.redblobgames.com/maps/terrain-from-noise/
+    // - https://www.redblobgames.com/articles/noise/introduction.html
+
+    // Domain Warping:
+    // WITHOUT: Input coords → Voronoi → Island shape
     //
     // Regular geometric pattern:
     //   *─────*─────*
@@ -121,8 +130,7 @@ export default class TerrainGenerator {
     //   *─────*─────*
     //
     //
-    // WITH Domain Warp:
-    // Input coords → Warp with noise → Voronoi → Island shape
+    // WITH: Input coords → Warp with noise → Voronoi → Island shape
     //
     // Organic, natural pattern:
     //     *───┐
@@ -134,27 +142,39 @@ export default class TerrainGenerator {
     //           *───*
     //               C
 
-    const warpedX = x + this.simplex(x * 0.01, y * 0.01) * 30;
-    const warpedY = y + this.simplex(x * 0.01 + 100, y * 0.01) * 30;
+    const warpedX =
+      x +
+      this.simplex(x * this.warpFrequency, y * this.warpFrequency) *
+        this.warpStrength;
+    const warpedY =
+      y +
+      this.simplex(x * this.warpFrequency + 100, y * this.warpFrequency) *
+        this.warpStrength;
 
+    // Layer 1: islands * 50
+    // Base island shape (0-50 range)
     const islands = this.voronoi(warpedX, warpedY);
-
-    if (islands < this.islandThreshold) {
-      return this.waterLevel; // -10
-    }
-
+    // Uncomment to see without warping effect
+    // const islands = this.voronoi(x, y);
 
     if (islands < this.islandThreshold) return this.waterLevel;
 
     // Layer 2: terrain * 30
     // Hills and valleys (0-30 range)
+    // TODO: replace hardcoded frequency multipliers with UI controls
     const terrain = this.simplex(x * 0.05, y * 0.05);
+    // Uncomment to see without this effect
+    //const terrain = 0;
 
     // Layer 3: peaks * 20
     // Sharp mountain ridges (0-20 range)
+    // TODO: replace hardcoded frequency multipliers with UI controls
     const peaks = this.ridgedNoise(x * 0.1, y * 0.1);
+    // Uncomment to see without this effect
+    //const peaks = 0;
 
     // Total possible height: 0 to 100
+    // TODO: replace hardcoded amplitude multipliers with UI controls
     return islands * 50 + terrain * 30 + peaks * 20;
   }
 
