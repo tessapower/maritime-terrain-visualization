@@ -12,7 +12,6 @@ export const Scene = () => {
 
     // Initialize Three.js scene
     sceneManagerRef.current = new SceneManager(canvasRef.current);
-    sceneManagerRef.current.init();
     sceneManagerRef.current.start();
 
     // Cleanup
