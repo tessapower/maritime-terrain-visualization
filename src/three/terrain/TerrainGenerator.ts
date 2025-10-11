@@ -12,18 +12,27 @@ import {
 export default class TerrainGenerator {
   // returns a value between -1 and 1
   private readonly simplex = createNoise2D();
-  private numIslands: number = 7;
-  private islandThreshold: number = 0.3;
+
+  numIslands: number = 7;
+  islandThreshold: number = 0.3;
   private landTransition: { start: number; end: number } = {
     start: this.islandThreshold + 0.1,
     end: this.islandThreshold - 0.05,
   };
 
-  private waterLevel: number = -10;
-  private warpStrength: number = 50;
-  private warpOffset: number = 100;
+  seaFloor: number = -10;
+  warpStrength: number = 50;
+  warpOffset: number = 100;
   // Oscillations per distance. Doubling makes everything half the size.
-  private warpFrequency: number = 0.01;
+  warpFrequency: number = 0.01;
+
+  peaksFrequency: number = 0.1;
+  peaksAmplitude: number = 0.45;
+  terrainFrequency: number = 0.03;
+
+  islandsWeight: number = 50;
+  terrainWeight: number = 30;
+  peaksWeight: number = 20;
 
   private seedPoints: Array<{ x: number; y: number }> | undefined;
 
@@ -166,32 +175,30 @@ export default class TerrainGenerator {
       ) *
         this.warpStrength;
 
-    // Layer 1: islands * 50
     // Base island shape (0-50 range)
     const islands = this.voronoi(warpedX, warpedY);
-    // Uncomment to see without warping effect
-    // const islands = this.voronoi(x, y);
 
     if (islands <= this.landTransition.end) {
       // Definitely water
-      return this.waterLevel;
+      return this.seaFloor;
     }
 
-    // Layer 2: terrain * 30
     // Hills and valleys (0-30 range)
-    // TODO: replace hardcoded frequency multipliers with UI controls
-    const terrain = this.simplex(x * 0.03, y * 0.03);
-    // Uncomment to see without this effect
-    //const terrain = 0;
+    const terrain = this.simplex(
+      x * this.terrainFrequency,
+      y * this.terrainFrequency,
+    );
 
-    // Layer 3: peaks * 20
     // Sharp mountain ridges (0-20 range)
-    // TODO: replace hardcoded frequency multipliers with UI controls
-    const peaks = 0.45 * this.ridgedNoise(x * 0.1, y * 0.1);
-    // Uncomment to see without this effect
-    //const peaks = 0;
+    const peaks =
+      this.peaksAmplitude *
+      this.ridgedNoise(x * this.peaksFrequency, y * this.peaksFrequency);
 
-    const landHeight = islands * 50 + terrain * 30 + peaks * 20;
+    // TODO: introduce islands : terrain : peaks noise ratios
+    const landHeight =
+      islands * this.islandsWeight +
+      terrain * this.terrainWeight +
+      peaks * this.peaksWeight;
 
     // Check if we need to start easing into the water
     if (islands <= this.landTransition.start) {
@@ -203,13 +210,10 @@ export default class TerrainGenerator {
       );
       // Eased value indicates progress between start and end of land transition
       const easedT = easeInOutSine(t);
-      // TODO: replace hardcoded islands multiplier with UI control
-
-      return lerp(this.waterLevel, landHeight, easedT);
+      return lerp(this.seaFloor, landHeight, easedT);
     }
 
     // Total possible height: 0 to 100
-    // TODO: replace hardcoded amplitude multipliers with UI controls
     return landHeight;
   }
 
@@ -223,6 +227,30 @@ export default class TerrainGenerator {
     const heights = new Float32Array(width * height);
     this.seedPoints = this.generateSeedPoints(width, height);
 
+    this.generateHeights(width, height, heights);
+
+    return heights;
+  }
+
+  /**
+   * Regenerates the terrain with the same seed points.
+   *
+   * @param width
+   * @param height
+   */
+  regenerateHeightMap(width: number, height: number): Float32Array {
+    const heights = new Float32Array(width * height);
+
+    this.generateHeights(width, height, heights);
+
+    return heights;
+  }
+
+  private generateHeights(
+    width: number,
+    height: number,
+    heights: Float32Array,
+  ): void {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const worldX = x - width / 2;
@@ -232,7 +260,5 @@ export default class TerrainGenerator {
         heights[index] = this.generate(worldX, worldY);
       }
     }
-
-    return heights;
   }
 }
