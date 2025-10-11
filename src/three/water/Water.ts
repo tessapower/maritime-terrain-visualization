@@ -1,6 +1,7 @@
 /// Water.ts: Manages water plane creation
 
 import * as THREE from "three";
+import { logger } from "../utils/Logger.ts";
 
 export class Water {
   private readonly mesh: THREE.Mesh;
@@ -36,6 +37,7 @@ export class Water {
    */
   setSeaLevel(level: number): void {
     this.mesh.position.y = level;
+    logger.log(`WATER LEVEL: ${level.toFixed(2)}`);
   }
 
   /**

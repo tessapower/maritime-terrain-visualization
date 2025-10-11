@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 import { TerrainControls } from "./gui/TerrainControls";
+import { logger } from "./utils/Logger.ts";
 
 export class SceneManager {
   private canvas: HTMLCanvasElement;
@@ -17,6 +18,8 @@ export class SceneManager {
   private gui: TerrainControls;
 
   constructor(canvas: HTMLCanvasElement) {
+    logger.log("SYSTEM: INITIALIZING SCENE MANAGER");
+
     this.canvas = canvas;
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(
@@ -31,6 +34,7 @@ export class SceneManager {
     });
 
     this.init();
+    logger.log("RENDERER: INITIALIZED");
 
     // Create scene objects
     this.terrain = new Terrain(500, 256);
@@ -38,6 +42,7 @@ export class SceneManager {
     this.gui = new TerrainControls(this.terrain);
 
     this.setupScene();
+    logger.log("SCENE SETUP: COMPLETE");
   }
 
   private init(): void {
@@ -67,6 +72,7 @@ export class SceneManager {
   }
 
   private setupLighting(): void {
+    logger.log("LIGHTING: CONFIGURING");
     // Ambient light
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     this.scene.add(ambientLight);
@@ -83,14 +89,17 @@ export class SceneManager {
     sun.shadow.camera.bottom = -25;
 
     this.scene.add(sun);
+    logger.log("LIGHTING: COMPLETE");
   }
 
   private setupCamera(): void {
     this.camera.position.set(0, 200, 200); // Bird's eye view
     this.camera.lookAt(0, 0, 0);
+    logger.log("CAMERA: POSITIONED");
   }
 
   start(): void {
+    logger.log("ANIMATION: STARTED");
     this.animate();
   }
 

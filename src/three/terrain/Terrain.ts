@@ -2,6 +2,7 @@
 
 import * as THREE from "three";
 import TerrainGenerator from "./TerrainGenerator";
+import { logger } from "../utils/Logger";
 
 export class Terrain {
   private mesh: THREE.Mesh;
@@ -41,12 +42,15 @@ export class Terrain {
   }
 
   private generateHeights(): void {
+    logger.log("GENERATING TERRAIN...");
     const heightMap = this.generator.generateHeightMap(
       this.resolution + 1,
       this.resolution + 1,
     );
 
     this.applyHeightMap(heightMap);
+
+    logger.log(`TERRAIN: ${heightMap.length} VERTICES GENERATED`);
   }
 
   private applyHeightMap(heightMap: Float32Array): void {
@@ -64,22 +68,28 @@ export class Terrain {
    * Regenerate terrain from scratch (new seed points)
    */
   regenerate(): void {
+    logger.log("REGENERATING TERRAIN (NEW SEEDS)");
     const heightMap = this.generator.generateHeightMap(
       this.resolution + 1,
       this.resolution + 1,
     );
+
     this.applyHeightMap(heightMap);
+    logger.log("TERRAIN REGENERATED");
   }
 
   /**
    * Update terrain with current parameters (same seed points)
    */
   update(): void {
+    logger.log("UPDATING TERRAIN (SAME SEEDS)");
     const heightMap = this.generator.regenerateHeightMap(
       this.resolution + 1,
       this.resolution + 1,
     );
+
     this.applyHeightMap(heightMap);
+    logger.log("TERRAIN UPDATED");
   }
 
   /**

@@ -8,6 +8,7 @@ import {
   lerp,
   easeInOutSine,
 } from "../utils/Math";
+import { logger } from "../utils/Logger.ts";
 
 export default class TerrainGenerator {
   // returns a value between -1 and 1
@@ -51,6 +52,7 @@ export default class TerrainGenerator {
       });
     }
 
+    logger.log(`SEED POINTS GENERATED: ${points.length} ISLANDS`);
     return points;
   }
 
@@ -224,8 +226,10 @@ export default class TerrainGenerator {
    * @param height Total height of plane to generate height map for
    */
   generateHeightMap(width: number, height: number): Float32Array {
+    logger.log(`HEIGHTMAP: ${width}x${height} = ${width * height} POINTS`);
     const heights = new Float32Array(width * height);
     this.seedPoints = this.generateSeedPoints(width, height);
+    logger.log(`VORONOI: ${this.seedPoints.length} SEED POINTS`);
 
     this.generateHeights(width, height, heights);
 

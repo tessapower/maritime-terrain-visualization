@@ -2,6 +2,7 @@
 
 import GUI from "lil-gui";
 import { Terrain } from "../terrain/Terrain";
+import { logger } from "../utils/Logger.ts";
 
 export class TerrainControls {
   private gui: GUI;
@@ -22,7 +23,8 @@ export class TerrainControls {
     const islandsControl = islands
       .add(generator, "numIslands", 1, 100, 1)
       .name("# of Islands")
-      .onFinishChange(() => {
+      .onFinishChange((value: number) => {
+        logger.log(`USER: ISLANDS SET TO ${value}`);
         this.terrain.regenerate();
       });
     islandsControl.domElement.title =
@@ -77,7 +79,8 @@ export class TerrainControls {
       .name("Sea Floor").domElement.title = "Height of underwater terrain";
 
     // Global change listener
-    this.gui.onFinishChange(() => {
+    this.gui.onFinishChange((event) => {
+      logger.log(`USER: ${event.property} SET TO ${event.value}`);
       this.terrain.update();
     });
 
