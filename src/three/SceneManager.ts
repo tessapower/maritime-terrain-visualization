@@ -1,38 +1,54 @@
 /// SceneManager.ts: Three.js scene setup and orchestration
 
 import * as THREE from "three";
-import { Water } from "./water/Water";
-import { TerrainControls } from "./gui/TerrainControls";
-import { Terrain } from "./terrain/Terrain";
-import { logger } from "./utils/Logger.ts";
 import { Grid } from "./grid/Grid.ts";
+import { logger } from "./utils/Logger.ts";
+import { OrbitalCamera } from "./camera/OrbitalCamera";
+import { GuiManager } from "./gui/GuiManager";
+import { TerrainControls } from "./gui/TerrainControls";
+import { CameraControls } from "./gui/CameraControls";
+import { Terrain } from "./terrain/Terrain";
+import { Water } from "./water/Water";
 
 export class SceneManager {
-  private canvas: HTMLCanvasElement;
-  private scene: THREE.Scene;
-  private camera: THREE.PerspectiveCamera;
+  private readonly canvas: HTMLCanvasElement;
+  private readonly scene: THREE.Scene;
   private renderer: THREE.WebGLRenderer;
   private animationId: number | null = null;
 
-  private terrain: Terrain;
+  private readonly terrain: Terrain;
   private water: Water;
   private grid: Grid;
-  private gui: TerrainControls;
+  private guiManager: GuiManager;
 
   private readonly size: number = 500;
   private readonly resolution: number = 256;
+
+  private readonly orbitalCamera: OrbitalCamera;
+  private readonly defaultOrbitRadius: number = 50;
+  private readonly defaultOrbitPeriod: number = 240;
+  private readonly defaultOrbitHeight: number = 300;
+  private readonly defaultBobAmount: number = 10;
+  private readonly defaultBobSpeed: number = 1.0;
 
   constructor(canvas: HTMLCanvasElement) {
     logger.log("SYSTEM: INITIALIZING SCENE MANAGER");
 
     this.canvas = canvas;
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(
-      75,
+
+    this.orbitalCamera = new OrbitalCamera(
       window.innerWidth / window.innerHeight,
-      0.1,
-      1000,
+      {
+        orbitRadius: this.defaultOrbitRadius,
+        orbitPeriod: this.defaultOrbitPeriod,
+        height: this.defaultOrbitHeight,
+        bobAmount: this.defaultBobAmount,
+        bobSpeed: this.defaultBobSpeed,
+        enabled: true,
+      },
     );
+
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
@@ -47,9 +63,16 @@ export class SceneManager {
 
     // Create scene objects
     this.terrain = new Terrain(this.size, this.resolution);
+    // TODO: replace these magic numbers!
     this.water = new Water(this.size * 1.5, 0);
     this.grid = new Grid(this.size * 1.5, 200, 0.8);
-    this.gui = new TerrainControls(this.terrain);
+
+    // Create GUI manager
+    this.guiManager = new GuiManager();
+
+    // Register GUI modules
+    this.guiManager.register("terrain", new TerrainControls(this.terrain));
+    this.guiManager.register("camera", new CameraControls(this.orbitalCamera));
 
     this.setupScene();
     logger.log("SCENE SETUP: COMPLETE");
@@ -73,12 +96,10 @@ export class SceneManager {
 
     // Setup lighting
     this.setupLighting();
-
-    // Setup camera
-    this.setupCamera();
   }
 
   private setupLighting(): void {
+    // TODO: replace these magic numbers!
     logger.log("LIGHTING: CONFIGURING");
     // Ambient light
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -105,12 +126,6 @@ export class SceneManager {
     logger.log("LIGHTING: COMPLETE");
   }
 
-  private setupCamera(): void {
-    this.camera.position.set(0, 200, 200); // Bird's eye view
-    this.camera.lookAt(0, 0, 0);
-    logger.log("CAMERA: POSITIONED");
-  }
-
   start(): void {
     logger.log("ANIMATION: STARTED");
     this.animate();
@@ -118,15 +133,19 @@ export class SceneManager {
 
   private animate = (): void => {
     this.animationId = requestAnimationFrame(this.animate);
-    this.water.update(performance.now() * 0.001);
-    this.renderer.render(this.scene, this.camera);
+
+    const time = performance.now() * 0.001; // Convert to seconds
+
+    this.orbitalCamera.update(time);
+    this.water.update(time);
+
+    this.renderer.render(this.scene, this.orbitalCamera.getCamera());
   };
 
   private handleResize = (): void => {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    this.orbitalCamera.updateAspectRatio(window.innerWidth, window.innerHeight);
+
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.water.updateResolution(window.innerWidth, window.innerHeight);
   };
 
   dispose(): void {
@@ -138,7 +157,7 @@ export class SceneManager {
     this.terrain.dispose();
     this.water.dispose();
     this.grid.dispose();
-    this.gui.dispose();
+    this.guiManager.dispose();
 
     this.renderer.dispose();
   }

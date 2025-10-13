@@ -13,6 +13,9 @@ precision mediump float;
 // Canvas width and height in pixels
 uniform vec2 u_resolution;
 uniform float u_time;
+uniform vec2 u_worldScale;
+
+varying vec2 v_uv;
 
 //===================================================== SIMPLEX NOISE 2D ====//
 // Helper functions and implementation of the Simplex noise function.
@@ -119,7 +122,7 @@ const float timeScalarFast = 0.05;
 
 void main() {
     // Normalize pixel coordinates to [0, 1] range
-    vec2 p = gl_FragCoord.xy / u_resolution.xy;
+    vec2 p = v_uv;
     p *= waveScale;
 
     //=================================================== DOMAIN WARPING ====//

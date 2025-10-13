@@ -17,9 +17,6 @@ export class Water {
 
     const uniforms = {
       u_time: { value: 0.0 },
-      u_resolution: {
-        value: new THREE.Vector2(window.innerWidth, window.innerHeight),
-      },
     };
 
     this.material = new THREE.ShaderMaterial({
@@ -52,13 +49,6 @@ export class Water {
    */
   update(time: number): void {
     this.material.uniforms.u_time.value = time;
-  }
-
-  /**
-   * Updates resolution uniform
-   */
-  updateResolution(width: number, height: number): void {
-    this.material.uniforms.u_resolution.value.set(width, height);
   }
 
   /**
