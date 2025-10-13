@@ -1,12 +1,13 @@
 /// SceneManager.ts: Three.js scene setup and orchestration
 
 import * as THREE from "three";
+import { CameraControls } from "./gui/CameraControls";
 import { Grid } from "./grid/Grid.ts";
+import { GuiManager } from "./gui/GuiManager";
 import { logger } from "./utils/Logger.ts";
 import { OrbitalCamera } from "./camera/OrbitalCamera";
-import { GuiManager } from "./gui/GuiManager";
+import { ShadowPlane } from "./water/ShadowPlane.ts";
 import { TerrainControls } from "./gui/TerrainControls";
-import { CameraControls } from "./gui/CameraControls";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 
@@ -18,12 +19,14 @@ export class SceneManager {
 
   private readonly terrain: Terrain;
   private water: Water;
+  private shadowPlane: ShadowPlane;
   private grid: Grid;
   private guiManager: GuiManager;
 
   private readonly size: number = 500;
   private readonly resolution: number = 256;
 
+  // Camera constants
   private readonly orbitalCamera: OrbitalCamera;
   private readonly defaultOrbitRadius: number = 50;
   private readonly defaultOrbitPeriod: number = 240;
@@ -65,6 +68,7 @@ export class SceneManager {
     this.terrain = new Terrain(this.size, this.resolution);
     // TODO: replace these magic numbers!
     this.water = new Water(this.size * 1.5, 0);
+    this.shadowPlane = new ShadowPlane(this.size * 1.5, 0.2);
     this.grid = new Grid(this.size * 1.5, 200, 0.8);
 
     // Create GUI manager
@@ -91,6 +95,7 @@ export class SceneManager {
     this.scene.background = new THREE.Color(0x232935);
 
     this.scene.add(this.terrain.getMesh());
+    this.scene.add(this.shadowPlane.getMesh());
     this.scene.add(this.water.getMesh());
     this.scene.add(this.grid.getMesh());
 
@@ -155,6 +160,7 @@ export class SceneManager {
 
     // Dispose scene objects
     this.terrain.dispose();
+    this.shadowPlane.dispose();
     this.water.dispose();
     this.grid.dispose();
     this.guiManager.dispose();

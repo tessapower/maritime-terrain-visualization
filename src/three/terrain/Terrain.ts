@@ -37,6 +37,7 @@ export class Terrain {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.rotation.x = -Math.PI / 2; // Rotate to lay flat
     mesh.receiveShadow = true;
+    mesh.castShadow = true;
 
     return mesh;
   }
