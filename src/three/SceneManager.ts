@@ -13,7 +13,6 @@ import { Water } from "./water/Water";
 export class SceneManager {
   private readonly canvas: HTMLCanvasElement;
   private readonly scene: THREE.Scene;
-  private readonly orbitalCamera: OrbitalCamera;
   private renderer: THREE.WebGLRenderer;
   private animationId: number | null = null;
 
@@ -25,21 +24,27 @@ export class SceneManager {
   private readonly size: number = 500;
   private readonly resolution: number = 256;
 
+  private readonly orbitalCamera: OrbitalCamera;
+  private readonly defaultOrbitRadius: number = 50;
+  private readonly defaultOrbitPeriod: number = 240;
+  private readonly defaultOrbitHeight: number = 300;
+  private readonly defaultBobAmount: number = 10;
+  private readonly defaultBobSpeed: number = 1.0;
+
   constructor(canvas: HTMLCanvasElement) {
     logger.log("SYSTEM: INITIALIZING SCENE MANAGER");
 
     this.canvas = canvas;
     this.scene = new THREE.Scene();
 
-    // TODO: replace these magic numbers!
     this.orbitalCamera = new OrbitalCamera(
       window.innerWidth / window.innerHeight,
       {
-        orbitRadius: 200,
-        orbitPeriod: 60, // 60 seconds per rotation
-        height: 120,
-        bobAmount: 5,
-        bobSpeed: 0.5,
+        orbitRadius: this.defaultOrbitRadius,
+        orbitPeriod: this.defaultOrbitPeriod,
+        height: this.defaultOrbitHeight,
+        bobAmount: this.defaultBobAmount,
+        bobSpeed: this.defaultBobSpeed,
         enabled: true,
       },
     );
