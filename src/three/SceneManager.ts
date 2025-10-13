@@ -31,7 +31,7 @@ export class SceneManager {
   private readonly defaultOrbitRadius: number = 50;
   private readonly defaultOrbitPeriod: number = 240;
   private readonly defaultOrbitHeight: number = 300;
-  private readonly defaultBobAmount: number = 10;
+  private readonly defaultBobAmount: number = 1;
   private readonly defaultBobSpeed: number = 1.0;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -111,18 +111,24 @@ export class SceneManager {
 
     // Directional light (sun)
     const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-    sun.position.set(10, 20, 10);
+    sun.position.set(20, 15, 20);
     sun.castShadow = true;
 
-    // Shadow camera frustum
+    // Shadow camera settings
     sun.shadow.mapSize.width = 2048;
     sun.shadow.mapSize.height = 2048;
-    sun.shadow.camera.left = -300;
-    sun.shadow.camera.right = 300;
-    sun.shadow.camera.top = 300;
-    sun.shadow.camera.bottom = -300;
     sun.shadow.camera.near = 0.5;
-    sun.shadow.camera.far = 500;
+    sun.shadow.camera.far = 600;
+
+    sun.shadow.camera.left = -400;
+    sun.shadow.camera.right = 400;
+    sun.shadow.camera.top = 400;
+    sun.shadow.camera.bottom = -400;
+    sun.shadow.camera.bottom = -400;
+
+    sun.shadow.bias = -0.0005;
+    sun.shadow.normalBias = 0.05;
+    sun.shadow.radius = 15;
 
     // this.scene.fog = new THREE.Fog(0x6a7a8a, 100, 500);
     const hemi = new THREE.HemisphereLight(0x8090a0, 0x2a3a4a, 0.4);
