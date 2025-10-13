@@ -8,7 +8,6 @@ export class ShadowPlane {
   private readonly size: number;
   private readonly seaLevelDelta: number;
 
-  // private readonly color: THREE.ColorRepresentation = 0x405060;
   private readonly roughness: number = 0.9;
   private readonly metalness: number = 0.1;
   private readonly opacity: number = 0.4;
