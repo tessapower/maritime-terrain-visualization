@@ -93,7 +93,6 @@ export class SceneManager {
 
     // Create scene objects
     this.terrain = new Terrain(this.size, this.resolution);
-    // TODO: replace these magic numbers!
     this.water = new Water(this.size * 1.5, 0);
     this.shadowPlane = new ShadowPlane(this.size * 1.5, 0.2);
     this.grid = new Grid(this.size * 1.5, 200, 0.8);
