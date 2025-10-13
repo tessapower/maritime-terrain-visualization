@@ -11,13 +11,13 @@ import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 
 export class SceneManager {
-  private canvas: HTMLCanvasElement;
-  private scene: THREE.Scene;
-  private orbitalCamera: OrbitalCamera;
+  private readonly canvas: HTMLCanvasElement;
+  private readonly scene: THREE.Scene;
+  private readonly orbitalCamera: OrbitalCamera;
   private renderer: THREE.WebGLRenderer;
   private animationId: number | null = null;
 
-  private terrain: Terrain;
+  private readonly terrain: Terrain;
   private water: Water;
   private grid: Grid;
   private guiManager: GuiManager;
@@ -31,6 +31,7 @@ export class SceneManager {
     this.canvas = canvas;
     this.scene = new THREE.Scene();
 
+    // TODO: replace these magic numbers!
     this.orbitalCamera = new OrbitalCamera(
       window.innerWidth / window.innerHeight,
       {
@@ -57,6 +58,7 @@ export class SceneManager {
 
     // Create scene objects
     this.terrain = new Terrain(this.size, this.resolution);
+    // TODO: replace these magic numbers!
     this.water = new Water(this.size * 1.5, 0);
     this.grid = new Grid(this.size * 1.5, 200, 0.8);
 
@@ -92,6 +94,7 @@ export class SceneManager {
   }
 
   private setupLighting(): void {
+    // TODO: replace these magic numbers!
     logger.log("LIGHTING: CONFIGURING");
     // Ambient light
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
