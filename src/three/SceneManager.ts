@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { Grid } from "./grid/Grid.ts";
 import { logger } from "./utils/Logger.ts";
+import { OrbitalCamera } from "./camera/OrbitalCamera";
 import { TerrainControls } from "./gui/TerrainControls";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
@@ -10,7 +11,7 @@ import { Water } from "./water/Water";
 export class SceneManager {
   private canvas: HTMLCanvasElement;
   private scene: THREE.Scene;
-  private camera: THREE.PerspectiveCamera;
+  private orbitalCamera: OrbitalCamera;
   private renderer: THREE.WebGLRenderer;
   private animationId: number | null = null;
 
@@ -27,12 +28,19 @@ export class SceneManager {
 
     this.canvas = canvas;
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(
-      75,
+
+    this.orbitalCamera = new OrbitalCamera(
       window.innerWidth / window.innerHeight,
-      0.1,
-      1000,
+      {
+        orbitRadius: 200,
+        orbitPeriod: 60, // 60 seconds per rotation
+        height: 120,
+        bobAmount: 5,
+        bobSpeed: 0.5,
+        enabled: true,
+      },
     );
+
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
@@ -73,9 +81,6 @@ export class SceneManager {
 
     // Setup lighting
     this.setupLighting();
-
-    // Setup camera
-    this.setupCamera();
   }
 
   private setupLighting(): void {
@@ -105,12 +110,6 @@ export class SceneManager {
     logger.log("LIGHTING: COMPLETE");
   }
 
-  private setupCamera(): void {
-    this.camera.position.set(0, 200, 200); // Bird's eye view
-    this.camera.lookAt(0, 0, 0);
-    logger.log("CAMERA: POSITIONED");
-  }
-
   start(): void {
     logger.log("ANIMATION: STARTED");
     this.animate();
@@ -118,13 +117,18 @@ export class SceneManager {
 
   private animate = (): void => {
     this.animationId = requestAnimationFrame(this.animate);
-    this.water.update(performance.now() * 0.001);
-    this.renderer.render(this.scene, this.camera);
+
+    const time = performance.now() * 0.001; // Convert to seconds
+
+    this.orbitalCamera.update(time);
+    this.water.update(time);
+
+    this.renderer.render(this.scene, this.orbitalCamera.getCamera());
   };
 
   private handleResize = (): void => {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    this.orbitalCamera.updateAspectRatio(window.innerWidth, window.innerHeight);
+
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.water.updateResolution(window.innerWidth, window.innerHeight);
   };
