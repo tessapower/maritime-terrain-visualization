@@ -17,6 +17,9 @@ export class SceneManager {
   private water: Water;
   private gui: TerrainControls;
 
+  private readonly size: number = 500;
+  private readonly resolution: number = 256;
+
   constructor(canvas: HTMLCanvasElement) {
     logger.log("SYSTEM: INITIALIZING SCENE MANAGER");
 
@@ -37,8 +40,8 @@ export class SceneManager {
     logger.log("RENDERER: INITIALIZED");
 
     // Create scene objects
-    this.terrain = new Terrain(500, 256);
-    this.water = new Water(500, 0);
+    this.terrain = new Terrain(this.size, this.resolution);
+    this.water = new Water(this.size * 1.5, 0);
     this.gui = new TerrainControls(this.terrain);
 
     this.setupScene();
@@ -75,7 +78,6 @@ export class SceneManager {
     logger.log("LIGHTING: CONFIGURING");
     // Ambient light
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    this.scene.add(ambientLight);
 
     // Directional light (sun)
     const sun = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -87,8 +89,8 @@ export class SceneManager {
     sun.shadow.camera.right = 25;
     sun.shadow.camera.top = 25;
     sun.shadow.camera.bottom = -25;
+    this.scene.add(sun, ambientLight);
 
-    this.scene.add(sun);
     logger.log("LIGHTING: COMPLETE");
   }
 
