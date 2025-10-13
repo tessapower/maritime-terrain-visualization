@@ -4,7 +4,9 @@ import * as THREE from "three";
 import { Grid } from "./grid/Grid.ts";
 import { logger } from "./utils/Logger.ts";
 import { OrbitalCamera } from "./camera/OrbitalCamera";
+import { GuiManager } from "./gui/GuiManager";
 import { TerrainControls } from "./gui/TerrainControls";
+import { CameraControls } from "./gui/CameraControls";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 
@@ -18,7 +20,7 @@ export class SceneManager {
   private terrain: Terrain;
   private water: Water;
   private grid: Grid;
-  private gui: TerrainControls;
+  private guiManager: GuiManager;
 
   private readonly size: number = 500;
   private readonly resolution: number = 256;
@@ -57,7 +59,13 @@ export class SceneManager {
     this.terrain = new Terrain(this.size, this.resolution);
     this.water = new Water(this.size * 1.5, 0);
     this.grid = new Grid(this.size * 1.5, 200, 0.8);
-    this.gui = new TerrainControls(this.terrain);
+
+    // Create GUI manager
+    this.guiManager = new GuiManager();
+
+    // Register GUI modules
+    this.guiManager.register("terrain", new TerrainControls(this.terrain));
+    this.guiManager.register("camera", new CameraControls(this.orbitalCamera));
 
     this.setupScene();
     logger.log("SCENE SETUP: COMPLETE");
@@ -141,7 +149,7 @@ export class SceneManager {
     this.terrain.dispose();
     this.water.dispose();
     this.grid.dispose();
-    this.gui.dispose();
+    this.guiManager.dispose();
 
     this.renderer.dispose();
   }
