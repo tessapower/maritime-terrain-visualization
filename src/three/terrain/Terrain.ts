@@ -5,8 +5,8 @@ import TerrainGenerator from "./TerrainGenerator";
 import { logger } from "../utils/Logger";
 
 export class Terrain {
-  private mesh: THREE.Mesh;
-  private generator: TerrainGenerator;
+  private readonly mesh: THREE.Mesh;
+  private readonly generator: TerrainGenerator;
   private readonly segments: number;
   private readonly size: number;
 
@@ -37,6 +37,7 @@ export class Terrain {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.rotation.x = -Math.PI / 2; // Rotate to lay flat
     mesh.receiveShadow = true;
+    mesh.castShadow = true;
 
     return mesh;
   }

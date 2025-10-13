@@ -39,7 +39,6 @@ export class Water {
     const mesh = new THREE.Mesh(geometry, this.material);
     mesh.position.y = this.seaLevel;
     mesh.rotation.x = -Math.PI / 2;
-    mesh.receiveShadow = true;
 
     return mesh;
   }
@@ -48,7 +47,9 @@ export class Water {
    * Updates shader uniforms
    */
   update(time: number): void {
-    this.material.uniforms.u_time.value = time;
+    if (this.material.uniforms.u_time) {
+      this.material.uniforms.u_time.value = time;
+    }
   }
 
   /**

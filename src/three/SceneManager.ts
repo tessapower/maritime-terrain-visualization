@@ -1,12 +1,13 @@
 /// SceneManager.ts: Three.js scene setup and orchestration
 
 import * as THREE from "three";
+import { CameraControls } from "./gui/CameraControls";
 import { Grid } from "./grid/Grid.ts";
+import { GuiManager } from "./gui/GuiManager";
 import { logger } from "./utils/Logger.ts";
 import { OrbitalCamera } from "./camera/OrbitalCamera";
-import { GuiManager } from "./gui/GuiManager";
+import { ShadowPlane } from "./water/ShadowPlane.ts";
 import { TerrainControls } from "./gui/TerrainControls";
-import { CameraControls } from "./gui/CameraControls";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 
@@ -18,18 +19,47 @@ export class SceneManager {
 
   private readonly terrain: Terrain;
   private water: Water;
+  private shadowPlane: ShadowPlane;
   private grid: Grid;
   private guiManager: GuiManager;
 
   private readonly size: number = 500;
   private readonly resolution: number = 256;
 
+  // Camera constants
   private readonly orbitalCamera: OrbitalCamera;
   private readonly defaultOrbitRadius: number = 50;
   private readonly defaultOrbitPeriod: number = 240;
   private readonly defaultOrbitHeight: number = 300;
-  private readonly defaultBobAmount: number = 10;
+  private readonly defaultBobAmount: number = 1;
   private readonly defaultBobSpeed: number = 1.0;
+
+  // Lighting
+  private readonly lightingConfig = {
+    ambient: {
+      color: 0xffffff,
+      intensity: 0.6,
+    },
+    sun: {
+      color: 0xffffff,
+      intensity: 0.8,
+      position: new THREE.Vector3(20, 15, 20),
+    },
+    shadow: {
+      mapSize: 2048,
+      cameraNear: 0.5,
+      cameraFar: 600,
+      cameraBounds: 400,
+      bias: -0.0005,
+      normalBias: 0.05,
+      radius: 15,
+    },
+    hemisphere: {
+      skyColor: 0x8090a0,
+      groundColor: 0x2a3a4a,
+      intensity: 0.4,
+    },
+  } as const;
 
   constructor(canvas: HTMLCanvasElement) {
     logger.log("SYSTEM: INITIALIZING SCENE MANAGER");
@@ -63,8 +93,8 @@ export class SceneManager {
 
     // Create scene objects
     this.terrain = new Terrain(this.size, this.resolution);
-    // TODO: replace these magic numbers!
     this.water = new Water(this.size * 1.5, 0);
+    this.shadowPlane = new ShadowPlane(this.size * 1.5, 0.2);
     this.grid = new Grid(this.size * 1.5, 200, 0.8);
 
     // Create GUI manager
@@ -91,6 +121,7 @@ export class SceneManager {
     this.scene.background = new THREE.Color(0x232935);
 
     this.scene.add(this.terrain.getMesh());
+    this.scene.add(this.shadowPlane.getMesh());
     this.scene.add(this.water.getMesh());
     this.scene.add(this.grid.getMesh());
 
@@ -99,30 +130,38 @@ export class SceneManager {
   }
 
   private setupLighting(): void {
-    // TODO: replace these magic numbers!
     logger.log("LIGHTING: CONFIGURING");
-    // Ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 
-    // Directional light (sun)
-    const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-    sun.position.set(10, 20, 10);
-    sun.castShadow = true;
+    const { ambient, sun, shadow, hemisphere } = this.lightingConfig;
 
-    // Shadow camera frustum
-    sun.shadow.mapSize.width = 2048;
-    sun.shadow.mapSize.height = 2048;
-    sun.shadow.camera.left = -300;
-    sun.shadow.camera.right = 300;
-    sun.shadow.camera.top = 300;
-    sun.shadow.camera.bottom = -300;
-    sun.shadow.camera.near = 0.5;
-    sun.shadow.camera.far = 500;
+    const ambientLight = new THREE.AmbientLight(
+      ambient.color,
+      ambient.intensity,
+    );
 
-    // this.scene.fog = new THREE.Fog(0x6a7a8a, 100, 500);
-    const hemi = new THREE.HemisphereLight(0x8090a0, 0x2a3a4a, 0.4);
-    this.scene.add(sun, ambientLight, hemi);
+    const sunLight = new THREE.DirectionalLight(sun.color, sun.intensity);
+    sunLight.position.copy(sun.position);
+    sunLight.castShadow = true;
 
+    sunLight.shadow.mapSize.width = shadow.mapSize;
+    sunLight.shadow.mapSize.height = shadow.mapSize;
+    sunLight.shadow.camera.near = shadow.cameraNear;
+    sunLight.shadow.camera.far = shadow.cameraFar;
+    sunLight.shadow.camera.left = -shadow.cameraBounds;
+    sunLight.shadow.camera.right = shadow.cameraBounds;
+    sunLight.shadow.camera.top = shadow.cameraBounds;
+    sunLight.shadow.camera.bottom = -shadow.cameraBounds;
+    sunLight.shadow.bias = shadow.bias;
+    sunLight.shadow.normalBias = shadow.normalBias;
+    sunLight.shadow.radius = shadow.radius;
+
+    const hemiLight = new THREE.HemisphereLight(
+      hemisphere.skyColor,
+      hemisphere.groundColor,
+      hemisphere.intensity,
+    );
+
+    this.scene.add(sunLight, ambientLight, hemiLight);
     logger.log("LIGHTING: COMPLETE");
   }
 
@@ -155,6 +194,7 @@ export class SceneManager {
 
     // Dispose scene objects
     this.terrain.dispose();
+    this.shadowPlane.dispose();
     this.water.dispose();
     this.grid.dispose();
     this.guiManager.dispose();
