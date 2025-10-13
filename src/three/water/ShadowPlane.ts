@@ -47,10 +47,10 @@ export class ShadowPlane {
   }
 
   /**
-   * Update water level
+   * Update how far this plane sits above/below the water plane.
    */
-  setSeaLevel(level: number): void {
-    this.mesh.position.y = level;
+  setSeaLevelDelta(delta: number): void {
+    this.mesh.position.y = delta;
   }
 
   /**
