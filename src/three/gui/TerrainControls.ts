@@ -1,30 +1,26 @@
-/// TerrainGUI.ts: Manages lil-gui controls for terrain
+/// TerrainControls.ts: Terrain controls that register with GUIManager
 
 import GUI from "lil-gui";
 import { Terrain } from "../terrain/Terrain";
-import { logger } from "../utils/Logger.ts";
+import type { IGuiModule } from "./GuiManager";
 
-export class TerrainControls {
-  private gui: GUI;
+export class TerrainControls implements IGuiModule {
   private terrain: Terrain;
 
   constructor(terrain: Terrain) {
     this.terrain = terrain;
-    this.gui = new GUI();
-    this.setupControls();
   }
 
-  private setupControls(): void {
+  setupControls(gui: GUI): void {
     const generator = this.terrain.getGenerator();
 
     // Islands folder
-    const islands = this.gui.addFolder("Islands");
+    const islands = gui.addFolder("Islands");
 
     const islandsControl = islands
       .add(generator, "numIslands", 1, 100, 1)
       .name("# of Islands")
-      .onFinishChange((value: number) => {
-        logger.log(`USER: ISLANDS SET TO ${value}`);
+      .onFinishChange(() => {
         this.terrain.regenerate();
       });
     islandsControl.domElement.title =
@@ -37,7 +33,7 @@ export class TerrainControls {
       "Land/water cutoff. Lower values = more ocean";
 
     // Warp folder
-    const warp = this.gui.addFolder("Warp Effect");
+    const warp = gui.addFolder("Warp Effect");
 
     warp
       .add(generator, "warpStrength", 0, 100, 5)
@@ -55,7 +51,7 @@ export class TerrainControls {
       "Frequency of warp noise (higher = more detail)";
 
     // Terrain folder
-    const terrain = this.gui.addFolder("Terrain");
+    const terrain = gui.addFolder("Terrain");
 
     terrain
       .add(generator, "terrainFrequency", 0.0, 1.0, 0.01)
@@ -72,28 +68,19 @@ export class TerrainControls {
       "Height contribution of ridged peaks";
 
     // Water folder
-    const water = this.gui.addFolder("Water");
+    const water = gui.addFolder("Water");
 
     water
       .add(generator, "seaFloor", -100, 100, 10)
       .name("Sea Floor").domElement.title = "Height of underwater terrain";
 
     // Global change listener
-    this.gui.onFinishChange((event) => {
-      logger.log(`USER: ${event.property} SET TO ${event.value}`);
+    gui.onFinishChange(() => {
       this.terrain.update();
     });
-
-    // TODO: Add preset system
-    // this.gui
-    //   .add({ reset: () => this.resetToDefaults() }, "reset")
-    //   .name("Reset Values");
   }
 
-  /**
-   * Clean up resources
-   */
-  dispose(): void {
-    this.gui.destroy();
+  getFolderName(): string {
+    return "Terrain";
   }
 }
