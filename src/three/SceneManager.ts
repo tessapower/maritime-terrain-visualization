@@ -130,7 +130,6 @@ export class SceneManager {
     this.orbitalCamera.updateAspectRatio(window.innerWidth, window.innerHeight);
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.water.updateResolution(window.innerWidth, window.innerHeight);
   };
 
   dispose(): void {
