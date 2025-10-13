@@ -34,6 +34,33 @@ export class SceneManager {
   private readonly defaultBobAmount: number = 1;
   private readonly defaultBobSpeed: number = 1.0;
 
+  // Lighting
+  private readonly lightingConfig = {
+    ambient: {
+      color: 0xffffff,
+      intensity: 0.6,
+    },
+    sun: {
+      color: 0xffffff,
+      intensity: 0.8,
+      position: new THREE.Vector3(20, 15, 20),
+    },
+    shadow: {
+      mapSize: 2048,
+      cameraNear: 0.5,
+      cameraFar: 600,
+      cameraBounds: 400,
+      bias: -0.0005,
+      normalBias: 0.05,
+      radius: 15,
+    },
+    hemisphere: {
+      skyColor: 0x8090a0,
+      groundColor: 0x2a3a4a,
+      intensity: 0.4,
+    },
+  } as const;
+
   constructor(canvas: HTMLCanvasElement) {
     logger.log("SYSTEM: INITIALIZING SCENE MANAGER");
 
@@ -104,36 +131,38 @@ export class SceneManager {
   }
 
   private setupLighting(): void {
-    // TODO: replace these magic numbers!
     logger.log("LIGHTING: CONFIGURING");
-    // Ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 
-    // Directional light (sun)
-    const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-    sun.position.set(20, 15, 20);
-    sun.castShadow = true;
+    const { ambient, sun, shadow, hemisphere } = this.lightingConfig;
 
-    // Shadow camera settings
-    sun.shadow.mapSize.width = 2048;
-    sun.shadow.mapSize.height = 2048;
-    sun.shadow.camera.near = 0.5;
-    sun.shadow.camera.far = 600;
+    const ambientLight = new THREE.AmbientLight(
+      ambient.color,
+      ambient.intensity,
+    );
 
-    sun.shadow.camera.left = -400;
-    sun.shadow.camera.right = 400;
-    sun.shadow.camera.top = 400;
-    sun.shadow.camera.bottom = -400;
-    sun.shadow.camera.bottom = -400;
+    const sunLight = new THREE.DirectionalLight(sun.color, sun.intensity);
+    sunLight.position.copy(sun.position);
+    sunLight.castShadow = true;
 
-    sun.shadow.bias = -0.0005;
-    sun.shadow.normalBias = 0.05;
-    sun.shadow.radius = 15;
+    sunLight.shadow.mapSize.width = shadow.mapSize;
+    sunLight.shadow.mapSize.height = shadow.mapSize;
+    sunLight.shadow.camera.near = shadow.cameraNear;
+    sunLight.shadow.camera.far = shadow.cameraFar;
+    sunLight.shadow.camera.left = -shadow.cameraBounds;
+    sunLight.shadow.camera.right = shadow.cameraBounds;
+    sunLight.shadow.camera.top = shadow.cameraBounds;
+    sunLight.shadow.camera.bottom = -shadow.cameraBounds;
+    sunLight.shadow.bias = shadow.bias;
+    sunLight.shadow.normalBias = shadow.normalBias;
+    sunLight.shadow.radius = shadow.radius;
 
-    // this.scene.fog = new THREE.Fog(0x6a7a8a, 100, 500);
-    const hemi = new THREE.HemisphereLight(0x8090a0, 0x2a3a4a, 0.4);
-    this.scene.add(sun, ambientLight, hemi);
+    const hemiLight = new THREE.HemisphereLight(
+      hemisphere.skyColor,
+      hemisphere.groundColor,
+      hemisphere.intensity,
+    );
 
+    this.scene.add(sunLight, ambientLight, hemiLight);
     logger.log("LIGHTING: COMPLETE");
   }
 
