@@ -118,6 +118,7 @@ export class SceneManager {
 
   private animate = (): void => {
     this.animationId = requestAnimationFrame(this.animate);
+    this.water.update(performance.now() * 0.001);
     this.renderer.render(this.scene, this.camera);
   };
 
@@ -125,6 +126,7 @@ export class SceneManager {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.water.updateResolution(window.innerWidth, window.innerHeight);
   };
 
   dispose(): void {
