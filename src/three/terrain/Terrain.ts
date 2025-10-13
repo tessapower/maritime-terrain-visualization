@@ -5,8 +5,8 @@ import TerrainGenerator from "./TerrainGenerator";
 import { logger } from "../utils/Logger";
 
 export class Terrain {
-  private mesh: THREE.Mesh;
-  private generator: TerrainGenerator;
+  private readonly mesh: THREE.Mesh;
+  private readonly generator: TerrainGenerator;
   private readonly segments: number;
   private readonly size: number;
 

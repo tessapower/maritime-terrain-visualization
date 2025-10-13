@@ -47,7 +47,9 @@ export class Water {
    * Updates shader uniforms
    */
   update(time: number): void {
-    this.material.uniforms.u_time.value = time;
+    if (this.material.uniforms.u_time) {
+      this.material.uniforms.u_time.value = time;
+    }
   }
 
   /**
