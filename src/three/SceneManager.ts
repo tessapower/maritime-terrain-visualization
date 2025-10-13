@@ -1,10 +1,11 @@
 /// SceneManager.ts: Three.js scene setup and orchestration
 
 import * as THREE from "three";
-import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 import { TerrainControls } from "./gui/TerrainControls";
+import { Terrain } from "./terrain/Terrain";
 import { logger } from "./utils/Logger.ts";
+import { Grid } from "./grid/Grid.ts";
 
 export class SceneManager {
   private canvas: HTMLCanvasElement;
@@ -15,6 +16,7 @@ export class SceneManager {
 
   private terrain: Terrain;
   private water: Water;
+  private grid: Grid;
   private gui: TerrainControls;
 
   private readonly size: number = 500;
@@ -36,12 +38,17 @@ export class SceneManager {
       antialias: true,
     });
 
+    // Enable shadows
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
     this.init();
     logger.log("RENDERER: INITIALIZED");
 
     // Create scene objects
     this.terrain = new Terrain(this.size, this.resolution);
     this.water = new Water(this.size * 1.5, 0);
+    this.grid = new Grid(this.size * 1.5, 200, 0.8);
     this.gui = new TerrainControls(this.terrain);
 
     this.setupScene();
@@ -58,14 +65,11 @@ export class SceneManager {
   }
 
   private setupScene(): void {
-    // Set scene background
     this.scene.background = new THREE.Color(0x232935);
 
-    // Add terrain to scene
     this.scene.add(this.terrain.getMesh());
-
-    // Add water to scene
     this.scene.add(this.water.getMesh());
+    this.scene.add(this.grid.getMesh());
 
     // Setup lighting
     this.setupLighting();
@@ -85,11 +89,18 @@ export class SceneManager {
     sun.castShadow = true;
 
     // Shadow camera frustum
-    sun.shadow.camera.left = -25;
-    sun.shadow.camera.right = 25;
-    sun.shadow.camera.top = 25;
-    sun.shadow.camera.bottom = -25;
-    this.scene.add(sun, ambientLight);
+    sun.shadow.mapSize.width = 2048;
+    sun.shadow.mapSize.height = 2048;
+    sun.shadow.camera.left = -300;
+    sun.shadow.camera.right = 300;
+    sun.shadow.camera.top = 300;
+    sun.shadow.camera.bottom = -300;
+    sun.shadow.camera.near = 0.5;
+    sun.shadow.camera.far = 500;
+
+    // this.scene.fog = new THREE.Fog(0x6a7a8a, 100, 500);
+    const hemi = new THREE.HemisphereLight(0x8090a0, 0x2a3a4a, 0.4);
+    this.scene.add(sun, ambientLight, hemi);
 
     logger.log("LIGHTING: COMPLETE");
   }
@@ -124,6 +135,7 @@ export class SceneManager {
     // Dispose scene objects
     this.terrain.dispose();
     this.water.dispose();
+    this.grid.dispose();
     this.gui.dispose();
 
     this.renderer.dispose();

@@ -27,7 +27,8 @@ export class Water {
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.y = this.seaLevel;
-    mesh.rotation.x = -Math.PI / 2; // Lay flat
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.receiveShadow = true;
 
     return mesh;
   }
