@@ -220,18 +220,23 @@ export default class TerrainGenerator {
   }
 
   /**
-   * Generates a height map for a plane with dimensions width x height.
+   * Generates a heightSegments map for a plane with widthSegments x heightSegments.
    *
-   * @param width Total width of plane to generate height map for
-   * @param height Total height of plane to generate height map for
+   * @param widthSegments Total widthSegments of plane to generate heightSegments map for
+   * @param heightSegments Total heightSegments of plane to generate heightSegments map for
    */
-  generateHeightMap(width: number, height: number): Float32Array {
-    logger.log(`HEIGHTMAP: ${width}x${height} = ${width * height} POINTS`);
-    const heights = new Float32Array(width * height);
-    this.seedPoints = this.generateSeedPoints(width, height);
+  generateHeightMap(
+    widthSegments: number,
+    heightSegments: number,
+  ): Float32Array {
+    logger.log(
+      `HEIGHTMAP: ${widthSegments}x${heightSegments} = ${widthSegments * heightSegments} POINTS`,
+    );
+    const heights = new Float32Array(widthSegments * heightSegments);
+    this.seedPoints = this.generateSeedPoints(widthSegments, heightSegments);
     logger.log(`VORONOI: ${this.seedPoints.length} SEED POINTS`);
 
-    this.generateHeights(width, height, heights);
+    this.generateHeights(widthSegments, heightSegments, heights);
 
     return heights;
   }
@@ -239,13 +244,16 @@ export default class TerrainGenerator {
   /**
    * Regenerates the terrain with the same seed points.
    *
-   * @param width
-   * @param height
+   * @param widthSegments
+   * @param heightSegments
    */
-  regenerateHeightMap(width: number, height: number): Float32Array {
-    const heights = new Float32Array(width * height);
+  regenerateHeightMap(
+    widthSegments: number,
+    heightSegments: number,
+  ): Float32Array {
+    const heights = new Float32Array(widthSegments * heightSegments);
 
-    this.generateHeights(width, height, heights);
+    this.generateHeights(widthSegments, heightSegments, heights);
 
     return heights;
   }

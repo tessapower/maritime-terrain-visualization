@@ -7,12 +7,12 @@ import { logger } from "../utils/Logger";
 export class Terrain {
   private mesh: THREE.Mesh;
   private generator: TerrainGenerator;
-  private readonly resolution: number;
+  private readonly segments: number;
   private readonly size: number;
 
   constructor(size: number = 500, resolution: number = 256) {
     this.size = size;
-    this.resolution = resolution;
+    this.segments = resolution;
     this.generator = new TerrainGenerator();
 
     // Create initial terrain
@@ -24,8 +24,8 @@ export class Terrain {
     const geometry = new THREE.PlaneGeometry(
       this.size,
       this.size,
-      this.resolution,
-      this.resolution,
+      this.segments,
+      this.segments,
     );
 
     const material = new THREE.MeshStandardMaterial({
@@ -44,8 +44,8 @@ export class Terrain {
   private generateHeights(): void {
     logger.log("GENERATING TERRAIN...");
     const heightMap = this.generator.generateHeightMap(
-      this.resolution + 1,
-      this.resolution + 1,
+      this.segments + 1,
+      this.segments + 1,
     );
 
     this.applyHeightMap(heightMap);
@@ -70,8 +70,8 @@ export class Terrain {
   regenerate(): void {
     logger.log("REGENERATING TERRAIN (NEW SEEDS)");
     const heightMap = this.generator.generateHeightMap(
-      this.resolution + 1,
-      this.resolution + 1,
+      this.segments + 1,
+      this.segments + 1,
     );
 
     this.applyHeightMap(heightMap);
@@ -84,8 +84,8 @@ export class Terrain {
   update(): void {
     logger.log("UPDATING TERRAIN (SAME SEEDS)");
     const heightMap = this.generator.regenerateHeightMap(
-      this.resolution + 1,
-      this.resolution + 1,
+      this.segments + 1,
+      this.segments + 1,
     );
 
     this.applyHeightMap(heightMap);
