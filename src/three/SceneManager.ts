@@ -1,11 +1,11 @@
 /// SceneManager.ts: Three.js scene setup and orchestration
 
 import * as THREE from "three";
-import { Water } from "./water/Water";
+import { Grid } from "./grid/Grid.ts";
+import { logger } from "./utils/Logger.ts";
 import { TerrainControls } from "./gui/TerrainControls";
 import { Terrain } from "./terrain/Terrain";
-import { logger } from "./utils/Logger.ts";
-import { Grid } from "./grid/Grid.ts";
+import { Water } from "./water/Water";
 
 export class SceneManager {
   private canvas: HTMLCanvasElement;
