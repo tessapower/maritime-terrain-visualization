@@ -1,4 +1,4 @@
-/// SceneManager.ts: Three.js scene setup and orchestration
+// SceneManager.ts: Three.js scene setup and orchestration
 
 import * as THREE from "three";
 import { CameraControls } from "./gui/CameraControls";
@@ -11,6 +11,11 @@ import { TerrainControls } from "./gui/TerrainControls";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 
+/**
+ * Orchestrates the Three.js scene, including terrain, water, grid, lighting,
+ * camera, and GUI modules. Handles initialization, animation loop, resizing,
+ * and resource cleanup.
+ */
 export class SceneManager {
   private readonly canvas: HTMLCanvasElement;
   private readonly scene: THREE.Scene;
@@ -128,7 +133,8 @@ export class SceneManager {
     sunLight.position.copy(sun.position);
     sunLight.castShadow = true;
 
-    // Create a dedicated Object3D for the sun's target at the center of the terrain
+    // Create a dedicated Object3D for the sun's target
+    // at the center of the terrain
     const sunTarget = new THREE.Object3D();
     sunTarget.position.copy(sun.targetPosition);
     this.scene.add(sunTarget);

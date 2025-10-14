@@ -9,6 +9,10 @@ interface LogEntry {
   timestamp: number; // Unix timestamp in ms
 }
 
+/**
+ * Provides logging functionality with timestamped messages and fun jargon.
+ * Supports listeners for log updates and automatic cleanup of old messages.
+ */
 class Logger {
   private entries: LogEntry[] = [];
   private listeners: LogCallback[] = [];

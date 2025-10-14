@@ -5,6 +5,10 @@ import { logger } from "../utils/Logger.ts";
 import vertexShader from "../../shaders/water/water.vs.glsl?raw";
 import fragmentShader from "../../shaders/water/water.fs.glsl?raw";
 
+/**
+ * Manages the creation and animation of the water plane in the scene.
+ * Handles shader material setup and mesh generation for water effects.
+ */
 export class Water {
   private readonly mesh: THREE.Mesh;
   private readonly material: THREE.ShaderMaterial;

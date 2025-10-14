@@ -1,9 +1,22 @@
 // Math.ts: useful math functions
 
+/**
+ * Returns a random integer between min and max, inclusive.
+ *
+ * @param min Minimum value (inclusive)
+ * @param max Maximum value (inclusive)
+ */
 function randInRangeInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/**
+ * Normalizes a number n within the range [min, max] to a value between 0 and 1.
+ *
+ * @param n Number to normalize
+ * @param min Minimum of the range
+ * @param max Maximum of the range
+ */
 function normalize(n: number, min: number, max: number) {
   return (n - min) / (max - min);
 }
@@ -25,9 +38,9 @@ function euclideanDistance(
   );
 }
 
-
 /**
  * An easing function, based on the Sine function.
+ * Returns a value between [0, 1].
  *
  * Source: https://easings.net/#easeInOutSine
  *
@@ -50,10 +63,4 @@ function lerp(start: number, end: number, x: number): number {
   return start * (1 - x) + end * x;
 }
 
-export {
-  randInRangeInt,
-  normalize,
-  euclideanDistance,
-  easeInOutSine,
-  lerp,
-};
+export { randInRangeInt, normalize, euclideanDistance, easeInOutSine, lerp };

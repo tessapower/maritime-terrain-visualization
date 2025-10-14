@@ -18,6 +18,10 @@ export interface IGuiModule {
   getModuleName?(): string;
 }
 
+/**
+ * Central manager for lil-gui controls, allowing modules to register their own
+ * folders and controls.
+ */
 export class GuiManager {
   private readonly gui: GUI;
   private modules: Map<string, IGuiModule> = new Map();

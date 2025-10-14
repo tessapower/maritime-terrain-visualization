@@ -10,6 +10,10 @@ import {
 } from "../utils/Math";
 import { logger } from "../utils/Logger.ts";
 
+/**
+ * Generates procedural terrain heightmaps using noise and custom parameters.
+ * Supports island generation, warping, peaks, and other terrain features.
+ */
 export default class TerrainGenerator {
   // returns a value between -1 and 1
   private readonly simplex = createNoise2D();

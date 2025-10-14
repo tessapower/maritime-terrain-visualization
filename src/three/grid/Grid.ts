@@ -1,7 +1,10 @@
-/// Grid.ts: Manages tactical grid overlay above water
+// Grid.ts: Manages grid overlay above water
 
 import * as THREE from "three";
 
+/**
+ * Manages the grid overlay above the water.
+ */
 export class Grid {
   private readonly mesh: THREE.LineSegments;
   private readonly size: number;
@@ -64,13 +67,6 @@ export class Grid {
    */
   getMesh(): THREE.LineSegments {
     return this.mesh;
-  }
-
-  /**
-   * Update grid height above water
-   */
-  setHeight(height: number): void {
-    this.mesh.position.y = height;
   }
 
   /**

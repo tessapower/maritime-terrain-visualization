@@ -2,6 +2,10 @@
 
 import * as THREE from "three";
 
+/**
+ * Represents a transparent plane above/below the water that receives shadows.
+ * Used to create realistic shadow effects on water surfaces.
+ */
 export class ShadowPlane {
   private readonly mesh: THREE.Mesh;
   private readonly material: THREE.MeshStandardMaterial;

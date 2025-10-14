@@ -1,4 +1,4 @@
-/// OrbitalCamera.ts: Manages camera with orbital movement
+// OrbitalCamera.ts: Manages camera with orbital movement
 
 import * as THREE from "three";
 
@@ -14,6 +14,10 @@ interface OrbitalCameraConfig {
   enabled?: boolean;
 }
 
+/**
+ * Manages a Three.js camera with orbital movement, bobbing, and adjustable
+ * parameters.
+ */
 export class OrbitalCamera {
   private readonly camera: THREE.PerspectiveCamera;
   private orbitRadius: number;

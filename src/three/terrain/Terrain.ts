@@ -1,4 +1,4 @@
-/// Terrain.ts: Manages terrain mesh creation and updates
+// Terrain.ts: Manages terrain mesh creation and updates
 
 import * as THREE from "three";
 import TerrainGenerator from "./TerrainGenerator";
@@ -6,6 +6,10 @@ import { logger } from "../utils/Logger";
 import topoVertexShader from "../../shaders/topo/topo.vs.glsl?raw";
 import topoFragmentShader from "../../shaders/topo/topo.fs.glsl?raw";
 
+/**
+ * Manages the terrain mesh, material, and height generation for the scene.
+ * Handles updates, shadow settings, and interaction with the terrain generator.
+ */
 export class Terrain {
   private readonly mesh: THREE.Mesh;
   private readonly material: THREE.ShaderMaterial;
