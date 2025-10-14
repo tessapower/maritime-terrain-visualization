@@ -4,18 +4,19 @@ import * as THREE from "three";
 
 interface OrbitalCameraConfig {
   orbitRadius?: number;
-  orbitSpeed?: number;
   height?: number;
-  orbitPeriod?: number; // Seconds for full rotation
-  bobAmount?: number; // Vertical bobbing amount
-  bobSpeed?: number; // Vertical bobbing speed
+  // Seconds for full rotation
+  orbitPeriod?: number;
+  // Vertical bobbing amount
+  bobAmount?: number;
+  // Vertical bobbing speed
+  bobSpeed?: number;
   enabled?: boolean;
 }
 
 export class OrbitalCamera {
   private readonly camera: THREE.PerspectiveCamera;
   private orbitRadius: number;
-  private orbitSpeed: number;
   private height: number;
   private orbitPeriod: number;
   private bobAmount: number;
@@ -28,12 +29,11 @@ export class OrbitalCamera {
     this.camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
 
     // Apply config with defaults
-    this.orbitRadius = config.orbitRadius ?? 300;
-    this.orbitSpeed = config.orbitSpeed ?? 0.05;
-    this.height = config.height ?? 150;
-    this.orbitPeriod = config.orbitPeriod ?? 60.0; // 60 seconds default
-    this.bobAmount = config.bobAmount ?? 5;
-    this.bobSpeed = config.bobSpeed ?? 0.5;
+    this.orbitRadius = config.orbitRadius ?? 100;
+    this.height = config.height ?? 100;
+    this.orbitPeriod = config.orbitPeriod ?? 60;
+    this.bobAmount = config.bobAmount ?? 2;
+    this.bobSpeed = config.bobSpeed ?? 1.0;
     this.enabled = config.enabled ?? true;
 
     // Set initial position
@@ -63,7 +63,8 @@ export class OrbitalCamera {
 
     // Update camera position
     this.camera.position.set(x, y, z);
-    this.camera.lookAt(0, 0, 0); // Always look at center
+    // Always look at center
+    this.camera.lookAt(0, 0, 0);
   }
 
   /**
@@ -91,10 +92,6 @@ export class OrbitalCamera {
     this.orbitRadius = radius;
   }
 
-  setOrbitSpeed(speed: number): void {
-    this.orbitSpeed = speed;
-  }
-
   setOrbitPeriod(period: number): void {
     this.orbitPeriod = period;
   }
@@ -119,10 +116,6 @@ export class OrbitalCamera {
 
   getOrbitRadius(): number {
     return this.orbitRadius;
-  }
-
-  getOrbitSpeed(): number {
-    return this.orbitSpeed;
   }
 
   getOrbitPeriod(): number {

@@ -26,13 +26,8 @@ export class SceneManager {
   private readonly size: number = 500;
   private readonly resolution: number = 256;
 
-  // Camera constants
+  // Camera
   private readonly orbitalCamera: OrbitalCamera;
-  private readonly defaultOrbitRadius: number = 50;
-  private readonly defaultOrbitPeriod: number = 240;
-  private readonly defaultOrbitHeight: number = 300;
-  private readonly defaultBobAmount: number = 1;
-  private readonly defaultBobSpeed: number = 1.0;
 
   // Lighting
   private readonly lightingConfig = {
@@ -70,14 +65,6 @@ export class SceneManager {
 
     this.orbitalCamera = new OrbitalCamera(
       window.innerWidth / window.innerHeight,
-      {
-        orbitRadius: this.defaultOrbitRadius,
-        orbitPeriod: this.defaultOrbitPeriod,
-        height: this.defaultOrbitHeight,
-        bobAmount: this.defaultBobAmount,
-        bobSpeed: this.defaultBobSpeed,
-        enabled: true,
-      },
     );
 
     this.renderer = new THREE.WebGLRenderer({
