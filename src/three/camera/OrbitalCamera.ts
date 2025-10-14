@@ -126,14 +126,15 @@ export class OrbitalCamera {
   setOrbitPeriod(period: number): void {
     // Get current time
     const now = performance.now() * 0.001;
-    // Calculate current angle based on previous period
+    // Update orbitPeriod before calculating angle
+    this.orbitPeriod = period;
+    // Calculate current angle based on new period
     if (this.enabled) {
       const deltaTime = now - this.lastOrbitTime;
       this.lastAngle =
         this.lastAngle + (deltaTime / this.orbitPeriod) * Math.PI * 2;
       this.lastOrbitTime = now;
     }
-    this.orbitPeriod = period;
     this.updatePositionWithAngle(this.enabled ? this.lastAngle : this.angle, now);
   }
 
