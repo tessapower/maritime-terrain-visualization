@@ -1,4 +1,4 @@
-/// Terrain.ts: Manages terrain mesh creation and updates
+// Terrain.ts: Manages terrain mesh creation and updates
 
 import * as THREE from "three";
 import TerrainGenerator from "./TerrainGenerator";
@@ -6,6 +6,15 @@ import { logger } from "../utils/Logger";
 import topoVertexShader from "../../shaders/topo/topo.vs.glsl?raw";
 import topoFragmentShader from "../../shaders/topo/topo.fs.glsl?raw";
 
+/**
+ * Manages terrain mesh creation, shader material, and height generation.
+ *
+ * Key concepts:
+ * - Uses a custom TerrainGenerator for procedural heightmaps
+ * - ShaderMaterial with topographic contour lines (see topo shaders)
+ * - topoConfig controls contour appearance (color, spacing, width, intensity)
+ * - Handles mesh creation, updates, and shadow settings
+ */
 export class Terrain {
   private readonly mesh: THREE.Mesh;
   private readonly material: THREE.ShaderMaterial;
@@ -13,6 +22,14 @@ export class Terrain {
   private readonly segments: number;
   private readonly size: number;
 
+  /**
+   * Uniforms for controlling contour line appearance in the topo shader.
+   * - u_baseColor: Base terrain color
+   * - u_lineColor: Contour line color
+   * - u_lineSpacing: Distance between contour lines
+   * - u_lineWidth: Thickness of contour lines
+   * - u_lineIntensity: Line contrast
+   */
   private readonly topoConfig = {
     u_baseColor: { value: new THREE.Color(0xf8fbff) },
     u_lineColor: { value: new THREE.Color(0xaaaaaa) },
@@ -92,7 +109,7 @@ export class Terrain {
   }
 
   /**
-   * Regenerate terrain from scratch (new seed points)
+   * Regenerates terrain from scratch (new seed points)
    */
   regenerate(): void {
     logger.log("REGENERATING TERRAIN (NEW SEEDS)");
@@ -103,7 +120,7 @@ export class Terrain {
   }
 
   /**
-   * Update terrain with current parameters (same seed points)
+   * Updates terrain with current parameters (same seed points)
    */
   update(): void {
     logger.log("UPDATING TERRAIN (SAME SEEDS)");
@@ -114,21 +131,21 @@ export class Terrain {
   }
 
   /**
-   * Get the terrain generator for GUI access
+   * Gets the terrain generator for GUI access
    */
   getGenerator(): TerrainGenerator {
     return this.generator;
   }
 
   /**
-   * Get the Three.js mesh
+   * Gets the Three.js mesh
    */
   getMesh(): THREE.Mesh {
     return this.mesh;
   }
 
   /**
-   * Update shader lighting to match scene sun direction
+   * Updates shader lighting to match scene sun direction
    */
   setSunDirection(
     sunPosition: THREE.Vector3,
@@ -143,7 +160,7 @@ export class Terrain {
   }
 
   /**
-   * Clean up resources
+   * Cleans up resources
    */
   dispose(): void {
     this.mesh.geometry.dispose();

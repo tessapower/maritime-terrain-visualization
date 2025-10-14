@@ -1,4 +1,4 @@
-/// SceneManager.ts: Three.js scene setup and orchestration
+// SceneManager.ts: Three.js scene setup and orchestration
 
 import * as THREE from "three";
 import { CameraControls } from "./gui/CameraControls";
@@ -11,6 +11,11 @@ import { TerrainControls } from "./gui/TerrainControls";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 
+/**
+ * Orchestrates the Three.js scene, including terrain, water, grid, lighting,
+ * camera, and GUI modules. Handles initialization, animation loop, resizing,
+ * and resource cleanup.
+ */
 export class SceneManager {
   private readonly canvas: HTMLCanvasElement;
   private readonly scene: THREE.Scene;
@@ -96,7 +101,12 @@ export class SceneManager {
 
     // Register GUI modules
     this.guiManager.register("terrain", new TerrainControls(this.terrain));
-    this.guiManager.register("camera", new CameraControls(this.orbitalCamera));
+    if (import.meta.env.VITE_DEBUG_MODE === "true") {
+      this.guiManager.register(
+        "camera",
+        new CameraControls(this.orbitalCamera),
+      );
+    }
 
     this.setupScene();
     logger.log("SCENE: SETUP COMPLETE ✓");
@@ -119,22 +129,26 @@ export class SceneManager {
 
     const { ambient, sun, shadow, hemisphere } = this.lightingConfig;
 
+    // Ambient light provides base illumination
     const ambientLight = new THREE.AmbientLight(
       ambient.color,
       ambient.intensity,
     );
 
+    // Directional light simulates sunlight
     const sunLight = new THREE.DirectionalLight(sun.color, sun.intensity);
     sunLight.position.copy(sun.position);
     sunLight.castShadow = true;
 
     // Create a dedicated Object3D for the sun's target at the center of the terrain
+    // This ensures shadows remain fixed and do not shift with camera movement
     const sunTarget = new THREE.Object3D();
     sunTarget.position.copy(sun.targetPosition);
     this.scene.add(sunTarget);
     sunLight.target = sunTarget;
 
-    // Shadow configuration
+    // Configure shadow camera bounds to cover the terrain
+    // Large bounds help prevent shadow "swimming" artifacts
     sunLight.shadow.mapSize.width = shadow.mapSize;
     sunLight.shadow.mapSize.height = shadow.mapSize;
     sunLight.shadow.camera.near = shadow.cameraNear;
@@ -147,6 +161,7 @@ export class SceneManager {
     sunLight.shadow.normalBias = shadow.normalBias;
     sunLight.shadow.radius = shadow.radius;
 
+    // Hemisphere light simulates sky and ground lighting
     const hemiLight = new THREE.HemisphereLight(
       hemisphere.skyColor,
       hemisphere.groundColor,

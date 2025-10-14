@@ -1,4 +1,5 @@
-// components/Console.tsx
+// Console.tsx: A simple console component to display log messages.
+
 import { useEffect, useRef } from "react";
 import "./Console.css";
 
@@ -7,6 +8,10 @@ interface ConsoleProps {
   maxMessages?: number;
 }
 
+/**
+ * React component for displaying log messages in a scrollable console view.
+ * Auto-scrolls to the latest message and limits the number of visible messages.
+ */
 export const Console = ({ messages, maxMessages = 6 }: ConsoleProps) => {
   const consoleRef = useRef<HTMLDivElement>(null);
 

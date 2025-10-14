@@ -1,5 +1,8 @@
 // Jargon.ts: Just a bunch of nonsense.
 
+/**
+ * Array of random jargon phrases for fun status messages.
+ */
 export const JARGON_PHRASES = [
   "RECALIBRATING FLUX CAPACITORS",
   "OPTIMIZING QUANTUM FOAM DENSITY",
@@ -42,6 +45,9 @@ export const JARGON_PHRASES = [
   "OBFUSCATING QUIGLEY MATRIX...",
 ];
 
+/**
+ * Returns a random jargon phrase from the JARGON_PHRASES array.
+ */
 export function getRandomJargon(): string {
   return JARGON_PHRASES[Math.floor(Math.random() * JARGON_PHRASES.length)];
 }

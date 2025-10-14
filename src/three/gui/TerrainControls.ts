@@ -1,9 +1,13 @@
-/// TerrainControls.ts: Terrain controls that register with GUIManager
+// TerrainControls.ts: Terrain controls that register with GUIManager
 
 import GUI from "lil-gui";
 import { Terrain } from "../terrain/Terrain";
 import type { IGuiModule } from "./GuiManager";
 
+/**
+ * Registers terrain-related controls with the GUI manager for interactive
+ * parameter adjustment.
+ */
 export class TerrainControls implements IGuiModule {
   private terrain: Terrain;
 

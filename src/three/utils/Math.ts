@@ -1,9 +1,31 @@
-// Math.ts: useful math functions
+/*
+ * Math.ts: Utility math functions for terrain and graphics.
+ *
+ * Key concepts:
+ * - randInRangeInt: Random integer in [min, max]
+ * - normalize: Map value to [0, 1] range
+ * - euclideanDistance: 2D distance formula
+ * - lerp: Linear interpolation between a and b
+ * - easeInOutSine: Sine-based easing for smooth transitions
+ */
 
+/**
+ * Returns a random integer between min and max, inclusive.
+ *
+ * @param min Minimum value (inclusive)
+ * @param max Maximum value (inclusive)
+ */
 function randInRangeInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/**
+ * Normalizes a number n within the range [min, max] to a value between 0 and 1.
+ *
+ * @param n Number to normalize
+ * @param min Minimum of the range
+ * @param max Maximum of the range
+ */
 function normalize(n: number, min: number, max: number) {
   return (n - min) / (max - min);
 }
@@ -25,9 +47,9 @@ function euclideanDistance(
   );
 }
 
-
 /**
  * An easing function, based on the Sine function.
+ * Returns a value between [0, 1].
  *
  * Source: https://easings.net/#easeInOutSine
  *
@@ -39,21 +61,15 @@ function easeInOutSine(x: number): number {
 }
 
 /**
- * Returns a linearly interpolated value based on the given range [start, end], and
- * progress through the range x [0, 1].
+ * Linear interpolation between a and b by t.
+ * lerp(a, b, t) = a + (b - a) * t
  *
- * @param start Beginning of the range.
- * @param end End of the range
- * @param x Progress through the range as a normalized value: [0, 1]
+ * @param a Start value
+ * @param b End value
+ * @param t Interpolation factor in the range [0, 1]
  */
-function lerp(start: number, end: number, x: number): number {
-  return start * (1 - x) + end * x;
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
 }
 
-export {
-  randInRangeInt,
-  normalize,
-  euclideanDistance,
-  easeInOutSine,
-  lerp,
-};
+export { randInRangeInt, normalize, euclideanDistance, easeInOutSine, lerp };

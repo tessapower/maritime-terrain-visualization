@@ -1,3 +1,9 @@
+/*
+ * lil-gui-theme.css: Custom theme for lil-gui controls to match the
+ * application's color palette and compact style. Styles sliders,
+ * buttons, panels, and input elements for visual consistency.
+ */
+
 /* lil-gui custom theme with a modern, harmonious palette */
 .lil-gui {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif !important;

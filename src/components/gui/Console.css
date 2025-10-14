@@ -1,3 +1,8 @@
+/*
+ * Console.css: Stylesheet for the Console React component.
+ * Handles layout, font, colors, and fade animations for log messages.
+ */
+
 .console {
     position: fixed;
     bottom: 20px;

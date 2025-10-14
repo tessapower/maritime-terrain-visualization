@@ -1,3 +1,8 @@
+/*
+ * App.tsx: Root React component for the Maritime Terrain Visualization app.
+ * Sets up the Three.js scene and logging console, and manages log subscriptions.
+ */
+
 import "./App.css";
 import { useState, useEffect } from "react";
 import { Console } from "./components/gui/Console";

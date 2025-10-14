@@ -1,10 +1,14 @@
-/// Water.ts: Manages water plane creation
+// Water.ts: Manages water plane creation
 
 import * as THREE from "three";
 import { logger } from "../utils/Logger.ts";
 import vertexShader from "../../shaders/water/water.vs.glsl?raw";
 import fragmentShader from "../../shaders/water/water.fs.glsl?raw";
 
+/**
+ * Manages the creation and animation of the water plane in the scene.
+ * Handles shader material setup and mesh generation for water effects.
+ */
 export class Water {
   private readonly mesh: THREE.Mesh;
   private readonly material: THREE.ShaderMaterial;
@@ -55,14 +59,6 @@ export class Water {
     if (this.material.uniforms.u_time) {
       this.material.uniforms.u_time.value = time;
     }
-  }
-
-  /**
-   * Updates water level height
-   */
-  setSeaLevel(level: number): void {
-    this.mesh.position.y = level;
-    logger.log(`WATER LEVEL: ${level.toFixed(2)}`);
   }
 
   /**

@@ -1,9 +1,13 @@
-/// CameraGUI.ts: Camera controls that register with GUIManager
+// CameraControls.ts: Camera controls that register with GuiManager
 
 import GUI from "lil-gui";
 import { OrbitalCamera } from "../camera/OrbitalCamera";
 import { type IGuiModule } from "./GuiManager";
 
+/**
+ * Registers camera-related controls with the GuiManager for interactive camera
+ * parameter adjustment.
+ */
 export class CameraControls implements IGuiModule {
   private camera: OrbitalCamera;
 

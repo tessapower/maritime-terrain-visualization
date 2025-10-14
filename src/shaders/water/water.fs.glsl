@@ -1,14 +1,23 @@
+/*
+ * Fragment shader for animated, flowing water-like effects.
+ *
+ * Key concepts:
+ * - Domain warping and Fractional Brownian Motion (fBm) for organic, animated water
+ * - Simplex noise for smooth, natural variation
+ * - Parameters (u_time, u_worldScale) control animation and scale
+ * - Color and lighting can be added for realism
+
+ * Source(s): - https://iquilezles.org/articles/fbm/
+ *            - https://iquilezles.org/articles/warp/
+ *            - https://thebookofshaders.com/11/ (Noise)
+ *            - https://thebookofshaders.com/13/ (fBm)
+ *
+ * See comments below for how domain warping and fBm are implemented.
+ */
+
 #ifdef GL_ES
 precision mediump float;
 #endif
-
-/// A flowing, water-like shader based on Domain Warping and
-/// Fractional Brownian Motion.
-///
-/// Source(s): - https://iquilezles.org/articles/fbm/
-///            - https://iquilezles.org/articles/warp/
-///            - https://thebookofshaders.com/11/ (Noise)
-///            - https://thebookofshaders.com/13/ (fBm)
 
 // Canvas width and height in pixels
 uniform vec2 u_resolution;
@@ -21,21 +30,40 @@ varying vec2 v_uv;
 // Helper functions and implementation of the Simplex noise function.
 //
 // Author(s): Ian McEwan, Ashima Arts
+
+/**
+ * Modulo 289 for vec3
+ * @param x A vec3 input
+ * @return A vec3 output with each component modulo 289
+ */
 vec3 mod289(vec3 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
+/**
+ * Modulo 289 for vec2
+ * @param x A vec2 input
+ * @return A vec2 output with each component modulo 289
+ */
 vec2 mod289(vec2 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 
+/**
+ * Permutation polynomial: (34x^2 + x) mod 289
+ * @param x A vec3 input
+ * @return A vec3 permuted output
+ */
 vec3 permute(vec3 x) {
     return mod289(((x*34.0)+1.0)*x);
 }
 
-// Simplex Noise 2D:
-// Returns value in range [-1, 1]
-// More organic than value noise, no directional artifacts
+/**
+ * 2D Simplex Noise
+ * Generates smooth, continuous noise values for a 2D input vector.
+ * @param v A 2D vector input
+ * @return A float noise value in the range [-1, 1]
+ */
 float snoise(vec2 v) {
     // Precompute values for a simplex (2D equilateral triangle)
     const vec4 C = vec4(0.211324865405187, // (3.0-sqrt(3.0))/6.0
@@ -88,6 +116,14 @@ float snoise(vec2 v) {
 // Layers multiple octaves of noise for natural-looking complexity
 // Each octave has 2x frequency and 0.5x amplitude of previous
 const int numOctaves = 5;
+
+/**
+ * Fractional Brownian Motion (fBm)
+ * Combines multiple octaves of simplex noise to create complex patterns.
+ *
+ * @param p A 2D vector input
+ * @return A float fBm value
+ */
 float fbm(in vec2 p) {
     // Gain (a.k.a. Lacunarity): how much each octave
     // contributes (persistence)

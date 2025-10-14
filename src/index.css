@@ -1,3 +1,7 @@
+/*
+ * index.css: Global stylesheet for the Maritime Terrain Visualization
+ * application. Sets up base font, color scheme, and layout for the entire app.
+ */
 :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
@@ -35,4 +39,3 @@ h1 {
     font-size: 3.2em;
     line-height: 1.1;
 }
-

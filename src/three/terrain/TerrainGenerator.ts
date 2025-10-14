@@ -1,4 +1,4 @@
-/// TerrainGenerator.ts: generates a terrain procedurally
+// TerrainGenerator.ts: generates a terrain procedurally
 
 import { createNoise2D } from "simplex-noise";
 import {
@@ -10,6 +10,25 @@ import {
 } from "../utils/Math";
 import { logger } from "../utils/Logger.ts";
 
+/**
+ * Generates procedural terrain heightmaps using noise,
+ * Voronoi, warping, and peaks.
+ *
+ * Key concepts:
+ * - Simplex noise for organic terrain variation
+ * - Voronoi falloff for island shapes
+ * - Domain warping for more natural, less grid-like features
+ * - Peaks for mountainous regions
+ *
+ * Parameters:
+ * - numIslands: Number of Voronoi seed points for islands
+ * - islandThreshold: Controls land/sea boundary
+ * - voronoiFalloff: Controls how sharply islands fall off into sea
+ * - warpStrength, warpFrequency: Control domain warping
+ * - peaksFrequency, peaksAmplitude: Control peak generation
+ * - terrainFrequency: Controls base terrain variation
+ * - islandsWeight, terrainWeight, peaksWeight: Blend weights for each feature
+ */
 export default class TerrainGenerator {
   // returns a value between -1 and 1
   private readonly simplex = createNoise2D();
@@ -40,6 +59,9 @@ export default class TerrainGenerator {
   terrainWeight: number = 20;
   peaksWeight: number = 10;
 
+  /**
+   * Voronoi seed points for islands. Used to calculate distance-based falloff.
+   */
   private seedPoints: Array<{ x: number; y: number }> | undefined;
 
   constructor(
@@ -76,8 +98,10 @@ export default class TerrainGenerator {
   }
 
   /**
-   * Voronoi Noise: returns a value between [0, 1]
+   * Returns a value between [0, 1]
    *
+   * Calculates the minimum distance from (x, y) to any seed point.
+   * The result is normalized and exponentiated to create island shapes.
    * Source(s): https://iquilezles.org/articles/cellularffx/
    */
   private voronoi(x: number, y: number): number {
@@ -107,8 +131,9 @@ export default class TerrainGenerator {
   }
 
   /**
-   * Ridged Noise: returns a value between [0, 1]
+   * Returns a value between [0, 1]
    *
+   * Inverts valleys to become ridges for sharper terrain features.
    * Source(s): https://www.redblobgames.com/maps/terrain-from-noise/#ridged
    */
   private ridgedNoise(x: number, y: number): number {
@@ -118,7 +143,18 @@ export default class TerrainGenerator {
   }
 
   /**
-   * generateHeightMap() calls generate(x, y)
+   * Generates a height value for given x,y coordinates.
+   *
+   * This function combines domain warping, Voronoi islands, Perlin terrain, and ridged peaks.
+   * The result is a weighted sum, with smooth transitions between land and water.
+   *
+   * Domain warping distorts the input coordinates to create more organic shapes.
+   * Voronoi noise creates islands. Perlin and ridged noise add terrain and peaks.
+   *
+   * See below for a flowchart of the logic.
+   *
+   * <pre>
+   *   generateHeightMap() calls generate(x, y)
    *               │
    *               ▼
    *     ┌─────────────────────┐
@@ -148,10 +184,7 @@ export default class TerrainGenerator {
    *          ▼         ▼
    *        Water    Land heights
    *        (-10)    (weighted sum)
-   */
-
-  /**
-   * Generates a height value for given x,y coordinates.
+   * </pre>
    */
   private generate(x: number, y: number): number {
     //---------------------------------------------------- Domain Warping ----//
@@ -162,8 +195,7 @@ export default class TerrainGenerator {
     // - https://www.redblobgames.com/maps/terrain-from-noise/
     // - https://www.redblobgames.com/articles/noise/introduction.html
 
-    // Domain Warping:
-    // WITHOUT: Input coords → Voronoi → Island shape
+    // WITHOUT Domain Warp: Input coords → Voronoi → Island shape
     //
     // Regular geometric pattern:
     //   *─────*─────*
@@ -172,8 +204,7 @@ export default class TerrainGenerator {
     //   │     │     │
     //   *─────*─────*
     //
-    //
-    // WITH: Input coords → Warp with noise → Voronoi → Island shape
+    // WITH Domain Warp: Input coords → Warp with noise → Voronoi → Island shape
     //
     // Organic, natural pattern:
     //     *───┐
@@ -183,7 +214,6 @@ export default class TerrainGenerator {
     //     *───┘   B   │
     //          ╲     ╱
     //           *───*
-    //               C
 
     const warpedX =
       x +

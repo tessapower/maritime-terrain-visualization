@@ -1,4 +1,5 @@
-/// GUIManager.ts: Central GUI that other modules can register with
+// GuiManager.ts: Central GUI (Plugin pattern) that modules implementing
+// the IGuiModule interface can register with.
 
 import GUI from "lil-gui";
 
@@ -18,6 +19,10 @@ export interface IGuiModule {
   getModuleName?(): string;
 }
 
+/**
+ * Central manager for lil-gui controls, allowing modules to register their own
+ * folders and controls.
+ */
 export class GuiManager {
   private readonly gui: GUI;
   private modules: Map<string, IGuiModule> = new Map();
