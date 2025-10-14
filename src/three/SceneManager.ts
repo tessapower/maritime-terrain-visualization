@@ -72,14 +72,20 @@ export class SceneManager {
       antialias: true,
     });
 
+    // Set up renderer
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     // Enable shadows
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    this.init();
-    logger.log("RENDERER: INITIALIZED");
+    // Handle resize
+    window.addEventListener("resize", this.handleResize);
+
+    logger.log("RENDERER: INITIALIZED ✓");
 
     // Create scene objects
+    // TODO: remove hardcoded sizes
     this.terrain = new Terrain(this.size, this.resolution);
     this.water = new Water(this.size * 5, 0);
     this.shadowPlane = new ShadowPlane(this.size * 5, 0.2);
@@ -93,16 +99,7 @@ export class SceneManager {
     this.guiManager.register("camera", new CameraControls(this.orbitalCamera));
 
     this.setupScene();
-    logger.log("SCENE SETUP: COMPLETE");
-  }
-
-  private init(): void {
-    // Set up renderer
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    // Handle resize
-    window.addEventListener("resize", this.handleResize);
+    logger.log("SCENE: SETUP COMPLETE ✓");
   }
 
   private setupScene(): void {
