@@ -194,11 +194,12 @@ void main() {
     vec3 color = vec3(0.0);
 
     // Light gray-blue (darkest)
-    vec3 deepWater = vec3(0.70, 0.75, 0.80);
+    vec3 deepWater = vec3(0.631, 0.694, 0.749);// hex: #A1B1BF
     // Very light gray-blue
-    vec3 midWater = vec3(0.80, 0.84, 0.88);
+    vec3 midWater = vec3(0.80, 0.84, 0.88);// hex: #CCD6E0
+    // hex: #c3d2e0
     // Almost white with hint of blue
-    vec3 lightWater = vec3(0.88, 0.91, 0.94);
+    vec3 lightWater = vec3(0.88, 0.91, 0.94);// hex: #E0E8F0
 
     // Only affects high values (creates highlights)
     color = mix(deepWater, midWater, f);
