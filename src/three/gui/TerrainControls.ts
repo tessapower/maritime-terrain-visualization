@@ -15,22 +15,16 @@ export class TerrainControls implements IGuiModule {
     const generator = this.terrain.getGenerator();
 
     // Islands folder
-    const islands = gui.addFolder("Islands");
+    const islands = gui.addFolder("Random Generation");
 
     const islandsControl = islands
-      .add(generator, "numIslands", 1, 100, 1)
-      .name("# of Islands")
+      .add(generator, "numIslands", 1, 10, 1)
+      .name("# of Seed Points")
       .onFinishChange(() => {
         this.terrain.regenerate();
       });
     islandsControl.domElement.title =
-      "Number of island clusters (Voronoi seed points)";
-
-    const thresholdControl = islands
-      .add(generator, "islandThreshold", 0.1, 1.0, 0.1)
-      .name("Threshold");
-    thresholdControl.domElement.title =
-      "Land/water cutoff. Lower values = more ocean";
+      'Number of "island" clusters (Voronoi seed points)';
 
     // Warp folder
     const warp = gui.addFolder("Warp Effect");
@@ -41,25 +35,25 @@ export class TerrainControls implements IGuiModule {
       "Strength of domain warping distortion";
 
     warp
-      .add(generator, "warpOffset", 0, 500, 10)
+      .add(generator, "warpOffset", 0, 100, 5)
       .name("Warp Offset").domElement.title =
       "Offset for second warp noise layer";
 
     warp
-      .add(generator, "warpFrequency", 0, 1.0, 0.01)
+      .add(generator, "warpFrequency", 0, 0.1, 0.01)
       .name("Warp Frequency").domElement.title =
       "Frequency of warp noise (higher = more detail)";
 
-    // Terrain folder
-    const terrain = gui.addFolder("Terrain");
+    // Terrain features
+    const terrain = gui.addFolder("Terrain Features");
 
     terrain
-      .add(generator, "terrainFrequency", 0.0, 1.0, 0.01)
+      .add(generator, "terrainFrequency", 0.0, 0.1, 0.01)
       .name("Terrain Frequency").domElement.title =
       "Frequency of base terrain noise";
 
     terrain
-      .add(generator, "peaksFrequency", 0.0, 1.0, 0.01)
+      .add(generator, "peaksFrequency", 0.0, 0.1, 0.01)
       .name("Peaks Frequency").domElement.title = "Frequency of mountain peaks";
 
     terrain
@@ -67,12 +61,13 @@ export class TerrainControls implements IGuiModule {
       .name("Peaks Amplitude").domElement.title =
       "Height contribution of ridged peaks";
 
-    // Water folder
-    const water = gui.addFolder("Water");
-
-    water
-      .add(generator, "seaFloor", -100, 100, 10)
-      .name("Sea Floor").domElement.title = "Height of underwater terrain";
+    // Add a button to regenerate the terrain with new seed points
+    const regenerateControl = {
+      regenerate: () => {
+        this.terrain.regenerate();
+      },
+    };
+    terrain.add(regenerateControl, "regenerate").name("Regenerate Terrain");
 
     // Global change listener
     gui.onFinishChange(() => {
@@ -80,7 +75,7 @@ export class TerrainControls implements IGuiModule {
     });
   }
 
-  getFolderName(): string {
+  getModuleName(): string {
     return "Terrain";
   }
 }
