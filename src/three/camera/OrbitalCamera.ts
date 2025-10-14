@@ -15,8 +15,13 @@ interface OrbitalCameraConfig {
 }
 
 /**
- * Manages a Three.js camera with orbital movement, bobbing, and adjustable
- * parameters.
+ * Manages a Three.js camera with orbital movement and vertical bobbing.
+ *
+ * Key concepts:
+ * - Camera orbits around the origin in the XZ plane
+ * - Vertical bobbing simulates natural movement (e.g., ship or drone)
+ * - orbitPeriod controls speed of full rotation
+ * - bobAmount and bobSpeed control amplitude and frequency of bobbing
  */
 export class OrbitalCamera {
   private readonly camera: THREE.PerspectiveCamera;
@@ -45,7 +50,13 @@ export class OrbitalCamera {
   }
 
   /**
-   * Update camera position based on time
+   * Update camera position based on time. The camera orbits around the origin
+   * in the XZ plane, with vertical bobbing for realism.
+   *
+   * angle = (time / orbitPeriod) * 2π
+   * x = cos(angle) * orbitRadius
+   * z = sin(angle) * orbitRadius
+   * y = height + sin(time * bobSpeed) * bobAmount
    */
   update(time: number): void {
     if (!this.enabled) return;
@@ -53,6 +64,14 @@ export class OrbitalCamera {
     this.updatePosition(time);
   }
 
+  /**
+   * Update camera position based on time.
+   *
+   * Math:
+   * - Orbit: X = r * cos(angle), Z = r * sin(angle)
+   * - Bobbing: Y = base height + sin(time * bobSpeed) * bobAmount
+   * - angle advances based on elapsed time and orbitPeriod
+   */
   private updatePosition(time: number): void {
     // Calculate orbit angle based on time and period
     this.angle = (time / this.orbitPeriod) * Math.PI * 2;

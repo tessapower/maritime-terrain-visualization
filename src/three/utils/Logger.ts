@@ -1,4 +1,4 @@
-/// Logger.ts: A simple logger.
+// Logger.ts: A simple logger.
 
 import { getRandomJargon } from "./Jargon";
 

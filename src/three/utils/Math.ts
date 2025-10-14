@@ -1,4 +1,13 @@
-// Math.ts: useful math functions
+/*
+ * Math.ts: Utility math functions for terrain and graphics.
+ *
+ * Key concepts:
+ * - randInRangeInt: Random integer in [min, max]
+ * - normalize: Map value to [0, 1] range
+ * - euclideanDistance: 2D distance formula
+ * - lerp: Linear interpolation between a and b
+ * - easeInOutSine: Sine-based easing for smooth transitions
+ */
 
 /**
  * Returns a random integer between min and max, inclusive.
@@ -52,15 +61,11 @@ function easeInOutSine(x: number): number {
 }
 
 /**
- * Returns a linearly interpolated value based on the given range [start, end], and
- * progress through the range x [0, 1].
- *
- * @param start Beginning of the range.
- * @param end End of the range
- * @param x Progress through the range as a normalized value: [0, 1]
+ * Linear interpolation between a and b by t (0 <= t <= 1).
+ * lerp(a, b, t) = a + (b - a) * t
  */
-function lerp(start: number, end: number, x: number): number {
-  return start * (1 - x) + end * x;
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
 }
 
 export { randInRangeInt, normalize, euclideanDistance, easeInOutSine, lerp };

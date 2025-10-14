@@ -1,4 +1,14 @@
-// topo.fs.glsl: Fragment shader for topographic contour lines
+/*
+ * Fragment shader for topographic contour lines.
+ *
+ * Key concepts:
+ * - Contour lines are created by wrapping the fragment's height (z) using mod
+ * - Line intensity and width are controlled by uniforms
+ * - Color blending between base terrain and contour lines
+ * - Lighting is calculated using the sun direction and surface normal
+ *
+ * See diagram and comments below for how contour wrapping works.
+ */
 
 uniform vec3 u_baseColor;
 uniform vec3 u_lineColor;
@@ -76,7 +86,6 @@ varying vec3 v_normal;
  *             └─┬─┘                  └─┬─┘
  *          line at start         line at end
  */
-
 void main() {
     // Get the height
     float height = v_position.z;

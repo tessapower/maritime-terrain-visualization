@@ -1,4 +1,4 @@
-/// ShadowPlane.ts: Shadow-receiving water plane
+// ShadowPlane.ts: Shadow-receiving water plane
 
 import * as THREE from "three";
 
@@ -48,13 +48,6 @@ export class ShadowPlane {
    */
   getMesh(): THREE.Mesh {
     return this.mesh;
-  }
-
-  /**
-   * Update how far this plane sits above/below the water plane.
-   */
-  setSeaLevelDelta(delta: number): void {
-    this.mesh.position.y = delta;
   }
 
   /**

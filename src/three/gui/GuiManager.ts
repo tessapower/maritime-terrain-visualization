@@ -1,4 +1,5 @@
-/// GUIManager.ts: Central GUI that other modules can register with
+// GuiManager.ts: Central GUI (Plugin pattern) that modules implementing
+// the IGuiModule interface can register with.
 
 import GUI from "lil-gui";
 

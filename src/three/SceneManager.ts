@@ -129,23 +129,26 @@ export class SceneManager {
 
     const { ambient, sun, shadow, hemisphere } = this.lightingConfig;
 
+    // Ambient light provides base illumination
     const ambientLight = new THREE.AmbientLight(
       ambient.color,
       ambient.intensity,
     );
 
+    // Directional light simulates sunlight
     const sunLight = new THREE.DirectionalLight(sun.color, sun.intensity);
     sunLight.position.copy(sun.position);
     sunLight.castShadow = true;
 
-    // Create a dedicated Object3D for the sun's target
-    // at the center of the terrain
+    // Create a dedicated Object3D for the sun's target at the center of the terrain
+    // This ensures shadows remain fixed and do not shift with camera movement
     const sunTarget = new THREE.Object3D();
     sunTarget.position.copy(sun.targetPosition);
     this.scene.add(sunTarget);
     sunLight.target = sunTarget;
 
-    // Shadow configuration
+    // Configure shadow camera bounds to cover the terrain
+    // Large bounds help prevent shadow "swimming" artifacts
     sunLight.shadow.mapSize.width = shadow.mapSize;
     sunLight.shadow.mapSize.height = shadow.mapSize;
     sunLight.shadow.camera.near = shadow.cameraNear;
@@ -158,6 +161,7 @@ export class SceneManager {
     sunLight.shadow.normalBias = shadow.normalBias;
     sunLight.shadow.radius = shadow.radius;
 
+    // Hemisphere light simulates sky and ground lighting
     const hemiLight = new THREE.HemisphereLight(
       hemisphere.skyColor,
       hemisphere.groundColor,

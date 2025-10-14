@@ -1,4 +1,4 @@
-/// TerrainControls.ts: Terrain controls that register with GUIManager
+// TerrainControls.ts: Terrain controls that register with GUIManager
 
 import GUI from "lil-gui";
 import { Terrain } from "../terrain/Terrain";
