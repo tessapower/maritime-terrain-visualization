@@ -24,7 +24,11 @@ export class Terrain {
   constructor(size: number = 500, resolution: number = 256) {
     this.size = size;
     this.segments = resolution;
-    this.generator = new TerrainGenerator(this.segments + 1, this.segments + 1);
+    this.generator = new TerrainGenerator(
+      this.size,
+      this.segments + 1,
+      this.segments + 1,
+    );
 
     // Create initial terrain
     this.material = this.createTopoMaterial();
@@ -136,8 +140,6 @@ export class Terrain {
       .normalize();
 
     this.material.uniforms.u_sunDirection.value.copy(worldDirection);
-
-    console.log("Light direction:", worldDirection);
   }
 
   /**

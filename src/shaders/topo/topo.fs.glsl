@@ -1,4 +1,4 @@
-/// topo.frag.glsl: Fragment shader for topographic contour lines
+/// topo.fs.glsl: Fragment shader for topographic contour lines
 
 uniform vec3 u_baseColor;
 uniform vec3 u_lineColor;
