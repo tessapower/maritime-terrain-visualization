@@ -38,26 +38,27 @@ export class SceneManager {
   private readonly lightingConfig = {
     ambient: {
       color: 0xffffff,
-      intensity: 0.6,
+      intensity: 1,
     },
     sun: {
       color: 0xffffff,
-      intensity: 0.8,
-      position: new THREE.Vector3(20, 15, 20),
+      intensity: 3,
+      position: new THREE.Vector3(350, 150, 0),
+      targetPosition: new THREE.Vector3(0, 0, 0),
     },
     shadow: {
       mapSize: 2048,
       cameraNear: 0.5,
-      cameraFar: 600,
-      cameraBounds: 400,
+      cameraFar: 800,
+      cameraBounds: 600,
       bias: -0.0005,
       normalBias: 0.05,
       radius: 15,
     },
     hemisphere: {
-      skyColor: 0x8090a0,
-      groundColor: 0x2a3a4a,
-      intensity: 0.4,
+      skyColor: 0xffffff,
+      groundColor: 0xf5f5f5,
+      intensity: 0.3,
     },
   } as const;
 
@@ -143,6 +144,13 @@ export class SceneManager {
     sunLight.position.copy(sun.position);
     sunLight.castShadow = true;
 
+    // Create a dedicated Object3D for the sun's target at the center of the terrain
+    const sunTarget = new THREE.Object3D();
+    sunTarget.position.copy(sun.targetPosition);
+    this.scene.add(sunTarget);
+    sunLight.target = sunTarget;
+
+    // Shadow configuration
     sunLight.shadow.mapSize.width = shadow.mapSize;
     sunLight.shadow.mapSize.height = shadow.mapSize;
     sunLight.shadow.camera.near = shadow.cameraNear;
@@ -162,7 +170,10 @@ export class SceneManager {
     );
 
     this.scene.add(sunLight, ambientLight, hemiLight);
-    logger.log("LIGHTING: COMPLETE");
+
+    // Update terrain shader with sun direction
+    this.terrain.setSunDirection(sun.position, sun.targetPosition);
+    logger.log("LIGHTING: COMPLETE ✓");
   }
 
   start(): void {

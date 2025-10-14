@@ -53,7 +53,7 @@ export class Grid {
 
     const mesh = new THREE.LineSegments(geometry, material);
     mesh.position.y = this.height;
-    mesh.castShadow = true;
+    mesh.castShadow = false;
     mesh.receiveShadow = false;
 
     return mesh;
