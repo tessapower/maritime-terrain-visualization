@@ -198,7 +198,6 @@ void main() {
     // Very light gray-blue
     vec3 midWater = vec3(0.80, 0.84, 0.88);// hex: #CCD6E0
     // hex: #c3d2e0
-    //    vec3 midWater = vec3(0.764, 0.824, 0.878);
     // Almost white with hint of blue
     vec3 lightWater = vec3(0.88, 0.91, 0.94);// hex: #E0E8F0
 
