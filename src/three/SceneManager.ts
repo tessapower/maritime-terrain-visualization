@@ -81,9 +81,9 @@ export class SceneManager {
 
     // Create scene objects
     this.terrain = new Terrain(this.size, this.resolution);
-    this.water = new Water(this.size * 1.5, 0);
-    this.shadowPlane = new ShadowPlane(this.size * 1.5, 0.2);
-    this.grid = new Grid(this.size * 1.5, 200, 0.8);
+    this.water = new Water(this.size * 5, 0);
+    this.shadowPlane = new ShadowPlane(this.size * 5, 0.2);
+    this.grid = new Grid(this.size * 5, 1000, 0.8);
 
     // Create GUI manager
     this.guiManager = new GuiManager();
