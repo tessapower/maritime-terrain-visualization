@@ -24,7 +24,7 @@ export class Terrain {
   constructor(size: number = 500, resolution: number = 256) {
     this.size = size;
     this.segments = resolution;
-    this.generator = new TerrainGenerator();
+    this.generator = new TerrainGenerator(this.segments + 1, this.segments + 1);
 
     // Create initial terrain
     this.material = this.createTopoMaterial();
@@ -69,10 +69,7 @@ export class Terrain {
 
   private generateHeights(): void {
     logger.log("GENERATING TERRAIN...");
-    const heightMap = this.generator.generateHeightMap(
-      this.segments + 1,
-      this.segments + 1,
-    );
+    const heightMap = this.generator.generateHeightMap();
 
     this.applyHeightMap(heightMap);
 
@@ -95,10 +92,7 @@ export class Terrain {
    */
   regenerate(): void {
     logger.log("REGENERATING TERRAIN (NEW SEEDS)");
-    const heightMap = this.generator.generateHeightMap(
-      this.segments + 1,
-      this.segments + 1,
-    );
+    const heightMap = this.generator.generateHeightMap(false);
 
     this.applyHeightMap(heightMap);
     logger.log("TERRAIN REGENERATED");
@@ -109,10 +103,7 @@ export class Terrain {
    */
   update(): void {
     logger.log("UPDATING TERRAIN (SAME SEEDS)");
-    const heightMap = this.generator.regenerateHeightMap(
-      this.segments + 1,
-      this.segments + 1,
-    );
+    const heightMap = this.generator.generateHeightMap(true);
 
     this.applyHeightMap(heightMap);
     logger.log("TERRAIN UPDATED");

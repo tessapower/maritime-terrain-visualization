@@ -14,28 +14,47 @@ export default class TerrainGenerator {
   // returns a value between -1 and 1
   private readonly simplex = createNoise2D();
 
-  numIslands: number = 7;
+  private readonly size: number;
+  private readonly widthSegments: number;
+  private readonly heightSegments: number;
+
+  numIslands: number = 4;
   islandThreshold: number = 0.3;
   private landTransition: { start: number; end: number } = {
     start: this.islandThreshold + 0.1,
     end: this.islandThreshold - 0.05,
   };
-
   seaFloor: number = -10;
+
+  voronoiFalloff: number = 12;
   warpStrength: number = 50;
   warpOffset: number = 100;
   // Oscillations per distance. Doubling makes everything half the size.
   warpFrequency: number = 0.01;
 
-  peaksFrequency: number = 0.1;
+  peaksFrequency: number = 0.5;
   peaksAmplitude: number = 0.45;
   terrainFrequency: number = 0.03;
 
-  islandsWeight: number = 50;
-  terrainWeight: number = 30;
-  peaksWeight: number = 20;
+  islandsWeight: number = 30;
+  terrainWeight: number = 20;
+  peaksWeight: number = 10;
 
   private seedPoints: Array<{ x: number; y: number }> | undefined;
+
+  constructor(
+    size: number = 500,
+    widthSegments: number = 256 + 1,
+    heightSegments: number = 256 + 1,
+  ) {
+    logger.log("SYSTEM: INITIALIZING TERRAIN GENERATOR");
+
+    this.size = size;
+    this.widthSegments = widthSegments;
+    this.heightSegments = heightSegments;
+
+    this.seedPoints = this.generateSeedPoints(widthSegments, heightSegments);
+  }
 
   private generateSeedPoints(
     width: number,
@@ -68,8 +87,7 @@ export default class TerrainGenerator {
 
     let minDistance: number = Number.MAX_SAFE_INTEGER;
 
-    // TODO: figure out how to pass in bounds of terrain
-    const maxDistance: number = 707;
+    const maxDistance: number = Math.sqrt(this.size ** 2 + this.size ** 2);
 
     for (const point of this.seedPoints) {
       const distance = euclideanDistance({ x, y }, point);
@@ -81,13 +99,11 @@ export default class TerrainGenerator {
     // Far from seed point = low value (water)
     const normalizedDistance = minDistance / maxDistance;
 
-    // Inverse squared
-    // const value = 1 / (1 + minDistance * minDistance / someScale);
+    // Inverse squared: uncomment to use inverse squared falloff
+    // const value = 1 / (1 + minDistance * minDistance / 100);
 
     // Exponential falloff to create more defined islands
-    const value = Math.exp(-normalizedDistance * 32);
-
-    return value;
+    return Math.exp(-normalizedDistance * this.voronoiFalloff);
   }
 
   /**
@@ -132,6 +148,10 @@ export default class TerrainGenerator {
    *          ▼         ▼
    *        Water    Land heights
    *        (-10)    (weighted sum)
+   */
+
+  /**
+   * Generates a height value for given x,y coordinates.
    */
   private generate(x: number, y: number): number {
     //---------------------------------------------------- Domain Warping ----//
@@ -222,38 +242,20 @@ export default class TerrainGenerator {
   /**
    * Generates a heightSegments map for a plane with widthSegments x heightSegments.
    *
-   * @param widthSegments Total widthSegments of plane to generate heightSegments map for
-   * @param heightSegments Total heightSegments of plane to generate heightSegments map for
+   * @param sameSeed If true, uses the same seed points as last time to generate similar islands
    */
-  generateHeightMap(
-    widthSegments: number,
-    heightSegments: number,
-  ): Float32Array {
+  generateHeightMap(sameSeed: boolean = false): Float32Array {
     logger.log(
-      `HEIGHTMAP: ${widthSegments}x${heightSegments} = ${widthSegments * heightSegments} POINTS`,
+      `HEIGHTMAP: ${this.widthSegments}x${this.heightSegments} = ${this.widthSegments * this.heightSegments} POINTS`,
     );
-    const heights = new Float32Array(widthSegments * heightSegments);
-    this.seedPoints = this.generateSeedPoints(widthSegments, heightSegments);
-    logger.log(`VORONOI: ${this.seedPoints.length} SEED POINTS`);
-
-    this.generateHeights(widthSegments, heightSegments, heights);
-
-    return heights;
-  }
-
-  /**
-   * Regenerates the terrain with the same seed points.
-   *
-   * @param widthSegments
-   * @param heightSegments
-   */
-  regenerateHeightMap(
-    widthSegments: number,
-    heightSegments: number,
-  ): Float32Array {
-    const heights = new Float32Array(widthSegments * heightSegments);
-
-    this.generateHeights(widthSegments, heightSegments, heights);
+    if (!sameSeed || !this.seedPoints) {
+      this.seedPoints = this.generateSeedPoints(
+        this.widthSegments,
+        this.heightSegments,
+      );
+    }
+    const heights = new Float32Array(this.widthSegments * this.heightSegments);
+    this.generateHeights(this.widthSegments, this.heightSegments, heights);
 
     return heights;
   }
