@@ -134,7 +134,7 @@ export class OrbitalCamera {
       this.lastOrbitTime = now;
     }
     this.orbitPeriod = period;
-    this.updatePositionWithAngle(this.lastAngle, now);
+    this.updatePositionWithAngle(this.enabled ? this.lastAngle : this.angle, now);
   }
 
   setHeight(height: number): void {
