@@ -101,7 +101,12 @@ export class SceneManager {
 
     // Register GUI modules
     this.guiManager.register("terrain", new TerrainControls(this.terrain));
-    this.guiManager.register("camera", new CameraControls(this.orbitalCamera));
+    if (import.meta.env.VITE_DEBUG_MODE === "true") {
+      this.guiManager.register(
+        "camera",
+        new CameraControls(this.orbitalCamera),
+      );
+    }
 
     this.setupScene();
     logger.log("SCENE: SETUP COMPLETE ✓");
