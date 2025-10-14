@@ -26,38 +26,34 @@ export class SceneManager {
   private readonly size: number = 500;
   private readonly resolution: number = 256;
 
-  // Camera constants
+  // Camera
   private readonly orbitalCamera: OrbitalCamera;
-  private readonly defaultOrbitRadius: number = 50;
-  private readonly defaultOrbitPeriod: number = 240;
-  private readonly defaultOrbitHeight: number = 300;
-  private readonly defaultBobAmount: number = 1;
-  private readonly defaultBobSpeed: number = 1.0;
 
   // Lighting
   private readonly lightingConfig = {
     ambient: {
       color: 0xffffff,
-      intensity: 0.6,
+      intensity: 1,
     },
     sun: {
       color: 0xffffff,
-      intensity: 0.8,
-      position: new THREE.Vector3(20, 15, 20),
+      intensity: 3,
+      position: new THREE.Vector3(350, 150, 0),
+      targetPosition: new THREE.Vector3(0, 0, 0),
     },
     shadow: {
       mapSize: 2048,
       cameraNear: 0.5,
-      cameraFar: 600,
-      cameraBounds: 400,
+      cameraFar: 800,
+      cameraBounds: 600,
       bias: -0.0005,
       normalBias: 0.05,
       radius: 15,
     },
     hemisphere: {
-      skyColor: 0x8090a0,
-      groundColor: 0x2a3a4a,
-      intensity: 0.4,
+      skyColor: 0xffffff,
+      groundColor: 0xf5f5f5,
+      intensity: 0.3,
     },
   } as const;
 
@@ -69,14 +65,6 @@ export class SceneManager {
 
     this.orbitalCamera = new OrbitalCamera(
       window.innerWidth / window.innerHeight,
-      {
-        orbitRadius: this.defaultOrbitRadius,
-        orbitPeriod: this.defaultOrbitPeriod,
-        height: this.defaultOrbitHeight,
-        bobAmount: this.defaultBobAmount,
-        bobSpeed: this.defaultBobSpeed,
-        enabled: true,
-      },
     );
 
     this.renderer = new THREE.WebGLRenderer({
@@ -84,18 +72,24 @@ export class SceneManager {
       antialias: true,
     });
 
+    // Set up renderer
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     // Enable shadows
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    this.init();
-    logger.log("RENDERER: INITIALIZED");
+    // Handle resize
+    window.addEventListener("resize", this.handleResize);
+
+    logger.log("RENDERER: INITIALIZED ✓");
 
     // Create scene objects
+    // TODO: remove hardcoded sizes
     this.terrain = new Terrain(this.size, this.resolution);
-    this.water = new Water(this.size * 1.5, 0);
-    this.shadowPlane = new ShadowPlane(this.size * 1.5, 0.2);
-    this.grid = new Grid(this.size * 1.5, 200, 0.8);
+    this.water = new Water(this.size * 5, 0);
+    this.shadowPlane = new ShadowPlane(this.size * 5, 0.2);
+    this.grid = new Grid(this.size * 5, 1000, 0.8);
 
     // Create GUI manager
     this.guiManager = new GuiManager();
@@ -105,16 +99,7 @@ export class SceneManager {
     this.guiManager.register("camera", new CameraControls(this.orbitalCamera));
 
     this.setupScene();
-    logger.log("SCENE SETUP: COMPLETE");
-  }
-
-  private init(): void {
-    // Set up renderer
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    // Handle resize
-    window.addEventListener("resize", this.handleResize);
+    logger.log("SCENE: SETUP COMPLETE ✓");
   }
 
   private setupScene(): void {
@@ -143,6 +128,13 @@ export class SceneManager {
     sunLight.position.copy(sun.position);
     sunLight.castShadow = true;
 
+    // Create a dedicated Object3D for the sun's target at the center of the terrain
+    const sunTarget = new THREE.Object3D();
+    sunTarget.position.copy(sun.targetPosition);
+    this.scene.add(sunTarget);
+    sunLight.target = sunTarget;
+
+    // Shadow configuration
     sunLight.shadow.mapSize.width = shadow.mapSize;
     sunLight.shadow.mapSize.height = shadow.mapSize;
     sunLight.shadow.camera.near = shadow.cameraNear;
@@ -162,7 +154,10 @@ export class SceneManager {
     );
 
     this.scene.add(sunLight, ambientLight, hemiLight);
-    logger.log("LIGHTING: COMPLETE");
+
+    // Update terrain shader with sun direction
+    this.terrain.setSunDirection(sun.position, sun.targetPosition);
+    logger.log("LIGHTING: COMPLETE ✓");
   }
 
   start(): void {

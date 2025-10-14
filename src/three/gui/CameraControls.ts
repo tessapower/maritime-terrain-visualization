@@ -115,11 +115,9 @@ export class CameraControls implements IGuiModule {
         this.camera.setBobSpeed(value);
       });
     bobSpeedControl.domElement.title = "Speed of vertical bobbing";
-
-    cameraFolder.close(); // Start collapsed
   }
 
-  getFolderName(): string {
+  getModuleName(): string {
     return "Camera";
   }
 }

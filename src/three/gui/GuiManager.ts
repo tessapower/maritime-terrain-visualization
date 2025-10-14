@@ -15,7 +15,7 @@ export interface IGuiModule {
   /**
    * Get the name for this module's folder
    */
-  getFolderName?(): string;
+  getModuleName?(): string;
 }
 
 export class GuiManager {
@@ -41,21 +41,6 @@ export class GuiManager {
 
     // Setup controls for this module
     module.setupControls(this.gui);
-  }
-
-  /**
-   * Unregisters a GUI module
-   * @param name The module identifier to remove
-   */
-  unregister(name: string): void {
-    this.modules.delete(name);
-  }
-
-  /**
-   * Gets the main GUI instance
-   */
-  getGUI(): GUI {
-    return this.gui;
   }
 
   /**

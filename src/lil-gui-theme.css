@@ -1,0 +1,82 @@
+/* lil-gui custom theme with a modern, harmonious palette */
+.lil-gui {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+    background: #232935 !important;
+    color: #f4f4f9 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 12px rgba(35, 41, 53, 0.25);
+    padding: 0 !important;
+    /* Slider bar color */
+    --number-color: #9cff24 !important;
+}
+
+.lil-gui .title {
+    color: #9cff24 !important;
+}
+
+.lil-gui .controller {
+    background: #2d3345 !important;
+    color: #f4f4f9 !important;
+    border-radius: 6px !important;
+    padding: 2px 4px !important;
+    margin: 0 !important;
+}
+
+.lil-gui input:not([type="checkbox"]), .lil-gui select {
+    background: #232935 !important;
+    color: #f4f4f9 !important;
+    border-radius: 6px !important;
+    border: 1px solid #9cff24 !important;
+    padding: 2px 4px !important;
+    margin: 0 !important;
+}
+
+.lil-gui .button {
+    background: #ffb347 !important;
+    color: #232935 !important;
+    border-radius: 6px !important;
+    border: 1px solid #9cff24 !important;
+    padding: 2px 8px !important;
+    margin: 0 !important;
+    transition: background 0.2s, color 0.2s;
+}
+
+.lil-gui .button:hover {
+    background: #ff7f50 !important;
+    color: #232935 !important;
+}
+
+/* Slider styles for lil-gui */
+.lil-gui .slider {
+    width: 100%;
+    height: 6px;
+    background: #9cff24;
+    border-radius: 3px;
+    margin: 2px 0 !important;
+    position: relative;
+}
+
+.lil-gui .slider .slider-fg {
+    background: #ffb347;
+    height: 100%;
+    border-radius: 3px;
+}
+
+.lil-gui .slider .slider-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ff7f50;
+    border: 2px solid #232935;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: background 0.2s, border 0.2s;
+}
+
+.lil-gui .slider:focus .slider-thumb,
+.lil-gui .slider .slider-thumb:hover {
+    background: #f4f4f9;
+    border: 2px solid #ffb347;
+}
