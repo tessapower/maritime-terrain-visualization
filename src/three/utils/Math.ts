@@ -61,8 +61,12 @@ function easeInOutSine(x: number): number {
 }
 
 /**
- * Linear interpolation between a and b by t (0 <= t <= 1).
+ * Linear interpolation between a and b by t.
  * lerp(a, b, t) = a + (b - a) * t
+ *
+ * @param a Start value
+ * @param b End value
+ * @param t Interpolation factor in the range [0, 1]
  */
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
