@@ -15,22 +15,27 @@ export class Water {
     this.size = size;
     this.seaLevel = seaLevel;
 
+    this.material = this.createWaterMaterial();
+    this.mesh = this.createWaterMesh();
+  }
+
+  private createWaterMaterial(): THREE.ShaderMaterial {
     const uniforms = {
       u_time: { value: 0.0 },
     };
 
-    this.material = new THREE.ShaderMaterial({
+    const material = new THREE.ShaderMaterial({
       uniforms,
       vertexShader,
       fragmentShader,
       side: THREE.FrontSide,
     });
 
-    if (this.material.isShaderMaterial) {
-      logger.log("SHADER MATERIAL COMPILED SUCCESSFULLY");
+    if (material.isShaderMaterial) {
+      logger.log("SHADER MATERIAL COMPILED ✓");
     }
 
-    this.mesh = this.createWaterMesh();
+    return material;
   }
 
   private createWaterMesh(): THREE.Mesh {
