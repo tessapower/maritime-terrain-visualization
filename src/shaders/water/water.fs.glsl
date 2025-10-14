@@ -194,7 +194,6 @@ void main() {
     vec3 color = vec3(0.0);
 
     // Light gray-blue (darkest)
-    // vec3 deepWater = vec3(0.70, 0.75, 0.80);// hex: #B3C0CC
     vec3 deepWater = vec3(0.631, 0.694, 0.749);// hex: #A1B1BF
     // Very light gray-blue
     vec3 midWater = vec3(0.80, 0.84, 0.88);// hex: #CCD6E0
