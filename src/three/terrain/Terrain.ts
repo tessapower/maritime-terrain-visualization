@@ -3,12 +3,23 @@
 import * as THREE from "three";
 import TerrainGenerator from "./TerrainGenerator";
 import { logger } from "../utils/Logger";
+import topoVertexShader from "../../shaders/topo/topo.vs.glsl?raw";
+import topoFragmentShader from "../../shaders/topo/topo.fs.glsl?raw";
 
 export class Terrain {
   private readonly mesh: THREE.Mesh;
+  private readonly material: THREE.ShaderMaterial;
   private readonly generator: TerrainGenerator;
   private readonly segments: number;
   private readonly size: number;
+
+  private readonly topoConfig = {
+    u_baseColor: { value: new THREE.Color(0xf8fbff) },
+    u_lineColor: { value: new THREE.Color(0xaaaaaa) },
+    u_lineSpacing: { value: 1.0 },
+    u_lineWidth: { value: 0.1 },
+    u_lineIntensity: { value: 0.5 },
+  } as const;
 
   constructor(size: number = 500, resolution: number = 256) {
     this.size = size;
@@ -16,6 +27,7 @@ export class Terrain {
     this.generator = new TerrainGenerator();
 
     // Create initial terrain
+    this.material = this.createTopoMaterial();
     this.mesh = this.createTerrainMesh();
     this.generateHeights();
   }
@@ -28,18 +40,31 @@ export class Terrain {
       this.segments,
     );
 
-    const material = new THREE.MeshStandardMaterial({
-      color: 0xacff24,
-      side: THREE.FrontSide,
-      wireframe: false,
-    });
-
-    const mesh = new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(geometry, this.material);
     mesh.rotation.x = -Math.PI / 2; // Rotate to lay flat
     mesh.receiveShadow = true;
     mesh.castShadow = true;
 
     return mesh;
+  }
+
+  private createTopoMaterial(): THREE.ShaderMaterial {
+    const uniforms = {
+      ...this.topoConfig,
+      u_sunDirection: { value: new THREE.Vector3() },
+    };
+
+    const material = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: topoVertexShader,
+      fragmentShader: topoFragmentShader,
+    });
+
+    if (material.isShaderMaterial) {
+      logger.log("TOPO SHADER MATERIAL COMPILED ✓");
+    }
+
+    return material;
   }
 
   private generateHeights(): void {
@@ -105,6 +130,23 @@ export class Terrain {
    */
   getMesh(): THREE.Mesh {
     return this.mesh;
+  }
+
+  /**
+   * Update shader lighting to match scene sun direction
+   */
+  setSunDirection(
+    sunPosition: THREE.Vector3,
+    targetPosition: THREE.Vector3,
+  ): void {
+    // Use world space direction, normals are in world space too
+    const worldDirection = new THREE.Vector3()
+      .subVectors(sunPosition, targetPosition)
+      .normalize();
+
+    this.material.uniforms.u_sunDirection.value.copy(worldDirection);
+
+    console.log("Light direction:", worldDirection);
   }
 
   /**
