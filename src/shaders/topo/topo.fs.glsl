@@ -99,7 +99,7 @@ void main() {
 
     // Call smoothstep twice to create a band for the line:
     // - First call creates line when contour is near 0
-    // - Secon call creates line when contour is near u_lineSpacing (wraps to 0)
+    // - Second call creates line when contour is near u_lineSpacing (wraps to 0)
     float line = smoothstep(lineEdge, lineEdge * 0.5, contour) +
     smoothstep(u_lineSpacing - lineEdge, u_lineSpacing - lineEdge * 0.5, contour);
 
