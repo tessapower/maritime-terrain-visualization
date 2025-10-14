@@ -107,4 +107,15 @@ http-client.private.env.json
 .idea/.cache/.Apifox_Helper
 .idea/ApifoxUploaderProjectSetting.xml
 
-
+# Ignore environment variable files
+.env
+.env.*.local
+.env.local
+.env.*.development.local
+.env.development.local
+.env.*.test.local
+.env.test.local
+.env.*.production.local
+.env.production.local
+.env.*.staging.local
+.env.staging.local
