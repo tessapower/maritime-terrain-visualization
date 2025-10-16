@@ -10,6 +10,17 @@ import { ShadowPlane } from "./water/ShadowPlane.ts";
 import { TerrainControls } from "./gui/TerrainControls";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
+import Stats from "stats.js";
+
+// Set up performance monitoring
+const stats = new Stats();
+if (import.meta.env.VITE_DEBUG_MODE === "true") {
+  document.body.appendChild(stats.dom);
+  stats.dom.style.position = "absolute";
+  stats.dom.style.top = "0px";
+  stats.dom.style.left = "0px";
+  stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+}
 
 /**
  * Orchestrates the Three.js scene, including terrain, water, grid, lighting,
@@ -181,8 +192,10 @@ export class SceneManager {
   }
 
   private animate = (): void => {
-    this.animationId = requestAnimationFrame(this.animate);
-
+    if (import.meta.env.VITE_DEBUG_MODE === "true") {
+      // Update stats if in debug mode
+      stats.begin();
+    }
     const time = performance.now() * 0.001; // Convert to seconds
 
     this.orbitalCamera.update(time);
@@ -192,6 +205,12 @@ export class SceneManager {
     this.terrain.updateCameraPosition(this.orbitalCamera.getCamera().position);
 
     this.renderer.render(this.scene, this.orbitalCamera.getCamera());
+
+    if (import.meta.env.VITE_DEBUG_MODE === "true") {
+      stats.end();
+    }
+
+    this.animationId = requestAnimationFrame(this.animate);
   };
 
   private handleResize = (): void => {
