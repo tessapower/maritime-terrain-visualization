@@ -73,6 +73,7 @@ export class Terrain {
     const uniforms = {
       ...this.topoConfig,
       u_sunDirection: { value: new THREE.Vector3() },
+      u_cameraPosition: { value: new THREE.Vector3() },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -157,6 +158,17 @@ export class Terrain {
       .normalize();
 
     this.material.uniforms.u_sunDirection.value.copy(worldDirection);
+  }
+
+  /**
+   * Updates the camera position for distance-based LOD fading
+   */
+  updateCameraPosition(cameraPosition: THREE.Vector3): void {
+    if (!this.material.uniforms.u_cameraPosition) {
+      console.error("u_cameraPosition uniform not found!");
+      return;
+    }
+    this.material.uniforms.u_cameraPosition.value.copy(cameraPosition);
   }
 
   /**

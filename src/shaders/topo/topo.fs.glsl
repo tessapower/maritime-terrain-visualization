@@ -16,9 +16,13 @@ uniform float u_lineSpacing;
 uniform float u_lineWidth;
 uniform float u_lineIntensity;
 uniform vec3 u_sunDirection;
+uniform vec3 u_cameraPosition;
+uniform float u_fadeStartDistance;
+uniform float u_fadeEndDistance;
 
 varying vec3 v_position;
 varying vec3 v_normal;
+varying vec3 v_worldPosition;
 
 /**
  * This shader creates topo contour lines based on the height of the current fragment.
@@ -90,6 +94,22 @@ void main() {
     // Get the height
     float height = v_position.z;
 
+    // Calculate distance from camera for LOD
+    float distanceFromCamera = length(u_cameraPosition - v_worldPosition);
+
+    // Fade out contour lines based on distance
+    // Lines are fully visible before fadeStartDistance,
+    // then gradually fade out until fadeEndDistance
+    float distanceFade = 1.0 - smoothstep(u_fadeStartDistance, u_fadeEndDistance, distanceFromCamera);
+
+    // Early exit if completely faded - skip line calculations
+    if (distanceFade <= 0.01) {
+        // Just render base color with lighting
+        float diffuse = max(dot(v_normal, u_sunDirection), 0.0) * 0.5 + 0.5;
+        gl_FragColor = vec4(u_baseColor * diffuse, 1.0);
+        return;
+    }
+
     // Calculate which contour line we're near, creates a
     // repeating pattern based on line spacing
     float contour = mod(height, u_lineSpacing);
@@ -103,8 +123,11 @@ void main() {
     float line = smoothstep(lineEdge, lineEdge * 0.5, contour) +
     smoothstep(u_lineSpacing - lineEdge, u_lineSpacing - lineEdge * 0.5, contour);
 
+    // Apply distance-based fade to line intensity
+    float finalLineIntensity = u_lineIntensity * distanceFade;
+
     // Mix base color with line color
-    vec3 color = mix(u_baseColor, u_lineColor, line * u_lineIntensity);
+    vec3 color = mix(u_baseColor, u_lineColor, line * finalLineIntensity);
 
     // Simple lighting based on normal and sun direction
     float diffuse = max(dot(v_normal, u_sunDirection), 0.0) * 0.5 + 0.5;
