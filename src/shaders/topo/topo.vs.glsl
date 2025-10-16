@@ -11,10 +11,15 @@
 varying vec3 v_position;
 // World-space normal for lighting
 varying vec3 v_normal;
+// World-space position for distance calculation
+varying vec3 v_worldPosition;
 
 void main() {
     // Transform vertex position to world space
     v_position = position;
+
+    // Calculate world position for distance-based LOD
+    v_worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
 
     // Transform normal to world space for consistent lighting
     // This ensures lighting/shading is correct regardless of mesh orientation
