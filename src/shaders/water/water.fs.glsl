@@ -24,6 +24,11 @@ uniform vec2 u_resolution;
 uniform float u_time;
 uniform vec2 u_worldScale;
 
+// Uniforms for water colors
+uniform vec3 u_deepWater;
+uniform vec3 u_midWater;
+uniform vec3 u_lightWater;
+
 varying vec2 v_uv;
 
 //===================================================== SIMPLEX NOISE 2D ====//
@@ -153,8 +158,8 @@ float fbm(in vec2 p) {
 const float waveScale = 3.0;
 const float warpOffset = 0.03;
 // Adds subtle variation so everything doesn't flow together
-const float timeScalarSlow = 0.01;
-const float timeScalarFast = 0.05;
+const float timeScalarSlow = 0.005;
+const float timeScalarFast = 0.01;
 
 void main() {
     // Normalize pixel coordinates to [0, 1] range
@@ -193,13 +198,10 @@ void main() {
     // Start with black
     vec3 color = vec3(0.0);
 
-    // Light gray-blue (darkest)
-    vec3 deepWater = vec3(0.631, 0.694, 0.749);// hex: #A1B1BF
-    // Very light gray-blue
-    vec3 midWater = vec3(0.80, 0.84, 0.88);// hex: #CCD6E0
-    // hex: #c3d2e0
-    // Almost white with hint of blue
-    vec3 lightWater = vec3(0.88, 0.91, 0.94);// hex: #E0E8F0
+    // Use uniforms for water colors (passed from TypeScript)
+    vec3 deepWater = u_deepWater;
+    vec3 midWater = u_midWater;
+    vec3 lightWater = u_lightWater;
 
     // Only affects high values (creates highlights)
     color = mix(deepWater, midWater, f);

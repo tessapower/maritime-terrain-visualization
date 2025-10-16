@@ -15,6 +15,12 @@ export class Water {
   private readonly size: number;
   private readonly seaLevel: number;
 
+  private readonly waterColors = {
+    u_deepWater: { value: new THREE.Color(0x7293b0) },
+    u_midWater: { value: new THREE.Color(0x7b97b0) },
+    u_lightWater: { value: new THREE.Color(0xe0e8f0) },
+  } as const;
+
   constructor(size: number = 500, seaLevel: number = 0) {
     this.size = size;
     this.seaLevel = seaLevel;
@@ -26,6 +32,7 @@ export class Water {
   private createWaterMaterial(): THREE.ShaderMaterial {
     const uniforms = {
       u_time: { value: 0.0 },
+      ...this.waterColors,
     };
 
     const material = new THREE.ShaderMaterial({
