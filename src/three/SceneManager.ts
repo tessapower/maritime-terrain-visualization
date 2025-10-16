@@ -12,16 +12,6 @@ import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
 import Stats from "stats.js";
 
-// Set up performance monitoring
-const stats = new Stats();
-if (import.meta.env.VITE_DEBUG_MODE === "true") {
-  document.body.appendChild(stats.dom);
-  stats.dom.style.position = "absolute";
-  stats.dom.style.top = "0px";
-  stats.dom.style.left = "0px";
-  stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
-}
-
 /**
  * Orchestrates the Three.js scene, including terrain, water, grid, lighting,
  * camera, and GUI modules. Handles initialization, animation loop, resizing,
@@ -44,6 +34,9 @@ export class SceneManager {
 
   // Camera
   private readonly orbitalCamera: OrbitalCamera;
+
+  // Performance monitoring (only in debug mode)
+  private stats?: Stats;
 
   // Lighting
   private readonly lightingConfig = {
@@ -78,6 +71,16 @@ export class SceneManager {
 
     this.canvas = canvas;
     this.scene = new THREE.Scene();
+
+    // Set up performance monitoring only in debug mode
+    if (import.meta.env.VITE_DEBUG_MODE === "true") {
+      this.stats = new Stats();
+      document.body.appendChild(this.stats.dom);
+      this.stats.dom.style.position = "absolute";
+      this.stats.dom.style.top = "0px";
+      this.stats.dom.style.left = "0px";
+      this.stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+    }
 
     this.orbitalCamera = new OrbitalCamera(
       window.innerWidth / window.innerHeight,
@@ -192,10 +195,8 @@ export class SceneManager {
   }
 
   private animate = (): void => {
-    if (import.meta.env.VITE_DEBUG_MODE === "true") {
-      // Update stats if in debug mode
-      stats.begin();
-    }
+    this.stats?.begin();
+
     const time = performance.now() * 0.001; // Convert to seconds
 
     this.orbitalCamera.update(time);
@@ -203,9 +204,7 @@ export class SceneManager {
 
     this.renderer.render(this.scene, this.orbitalCamera.getCamera());
 
-    if (import.meta.env.VITE_DEBUG_MODE === "true") {
-      stats.end();
-    }
+    this.stats?.end();
 
     this.animationId = requestAnimationFrame(this.animate);
   };
