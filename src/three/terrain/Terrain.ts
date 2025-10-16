@@ -16,6 +16,9 @@ import topoFragmentShader from "../../shaders/topo/topo.fs.glsl?raw";
  * - Handles mesh creation, updates, and shadow settings
  */
 export class Terrain {
+  private static readonly DEFAULT_SIZE = 500;
+  private static readonly DEFAULT_RESOLUTION = 256;
+
   private readonly mesh: THREE.Mesh;
   private readonly material: THREE.ShaderMaterial;
   private readonly generator: TerrainGenerator;
@@ -36,13 +39,16 @@ export class Terrain {
     u_baseColor: { value: new THREE.Color(0xf8fbff) },
     u_lineColor: { value: new THREE.Color(0x82878c) },
     u_lineSpacing: { value: 2.0 },
-    u_lineWidth: { value: 0.1 },
+    u_lineWidth: { value: 0.5 },
     u_lineIntensity: { value: 0.5 },
     u_fadeStartDistance: { value: 150.0 },
     u_fadeEndDistance: { value: 300.0 },
   } as const;
 
-  constructor(size: number = 500, resolution: number = 256) {
+  constructor(
+    size: number = Terrain.DEFAULT_SIZE,
+    resolution: number = Terrain.DEFAULT_RESOLUTION,
+  ) {
     this.size = size;
     this.segments = resolution;
     this.generator = new TerrainGenerator(

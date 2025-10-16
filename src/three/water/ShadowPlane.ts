@@ -7,24 +7,24 @@ import * as THREE from "three";
  * Used to create realistic shadow effects on water surfaces.
  */
 export class ShadowPlane {
+  private static readonly DEFAULT_ROUGHNESS = 0.9;
+  private static readonly DEFAULT_METALNESS = 0.1;
+  private static readonly DEFAULT_OPACITY = 0.4;
+
   private readonly mesh: THREE.Mesh;
   private readonly material: THREE.MeshStandardMaterial;
   private readonly size: number;
   private readonly seaLevelDelta: number;
-
-  private readonly roughness: number = 0.9;
-  private readonly metalness: number = 0.1;
-  private readonly opacity: number = 0.4;
 
   constructor(size: number = 500, seaLevelDelta: number) {
     this.size = size;
     this.seaLevelDelta = seaLevelDelta;
 
     this.material = new THREE.MeshStandardMaterial({
-      roughness: this.roughness,
-      metalness: this.metalness,
+      roughness: ShadowPlane.DEFAULT_ROUGHNESS,
+      metalness: ShadowPlane.DEFAULT_METALNESS,
       side: THREE.FrontSide,
-      opacity: this.opacity,
+      opacity: ShadowPlane.DEFAULT_OPACITY,
       transparent: true,
     });
 

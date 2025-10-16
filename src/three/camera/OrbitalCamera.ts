@@ -24,6 +24,14 @@ interface OrbitalCameraConfig {
  * - bobAmount and bobSpeed control amplitude and frequency of bobbing
  */
 export class OrbitalCamera {
+  // Default camera configuration values
+  private static readonly DEFAULT_ORBIT_RADIUS = 100;
+  private static readonly DEFAULT_HEIGHT = 100;
+  private static readonly DEFAULT_ORBIT_PERIOD = 120;
+  private static readonly DEFAULT_BOB_AMOUNT = 2;
+  private static readonly DEFAULT_BOB_SPEED = 1.0;
+  private static readonly DEFAULT_ENABLED = true;
+
   private readonly camera: THREE.PerspectiveCamera;
   private orbitRadius: number;
   private height: number;
@@ -42,12 +50,12 @@ export class OrbitalCamera {
     this.camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
 
     // Apply config with defaults
-    this.orbitRadius = config.orbitRadius ?? 100;
-    this.height = config.height ?? 100;
-    this.orbitPeriod = config.orbitPeriod ?? 60;
-    this.bobAmount = config.bobAmount ?? 2;
-    this.bobSpeed = config.bobSpeed ?? 1.0;
-    this.enabled = config.enabled ?? true;
+    this.orbitRadius = config.orbitRadius ?? OrbitalCamera.DEFAULT_ORBIT_RADIUS;
+    this.height = config.height ?? OrbitalCamera.DEFAULT_HEIGHT;
+    this.orbitPeriod = config.orbitPeriod ?? OrbitalCamera.DEFAULT_ORBIT_PERIOD;
+    this.bobAmount = config.bobAmount ?? OrbitalCamera.DEFAULT_BOB_AMOUNT;
+    this.bobSpeed = config.bobSpeed ?? OrbitalCamera.DEFAULT_BOB_SPEED;
+    this.enabled = config.enabled ?? OrbitalCamera.DEFAULT_ENABLED;
 
     // Initialize orbit state
     this.angle = 0;
@@ -135,7 +143,10 @@ export class OrbitalCamera {
         this.lastAngle + (deltaTime / this.orbitPeriod) * Math.PI * 2;
       this.lastOrbitTime = now;
     }
-    this.updatePositionWithAngle(this.enabled ? this.lastAngle : this.angle, now);
+    this.updatePositionWithAngle(
+      this.enabled ? this.lastAngle : this.angle,
+      now,
+    );
   }
 
   setHeight(height: number): void {

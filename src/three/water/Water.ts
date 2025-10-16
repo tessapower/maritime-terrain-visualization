@@ -10,6 +10,9 @@ import fragmentShader from "../../shaders/water/water.fs.glsl?raw";
  * Handles shader material setup and mesh generation for water effects.
  */
 export class Water {
+  private static readonly DEFAULT_SIZE = 500;
+  private static readonly DEFAULT_SEA_LEVEL = 0;
+
   private readonly mesh: THREE.Mesh;
   private readonly material: THREE.ShaderMaterial;
   private readonly size: number;
@@ -21,7 +24,10 @@ export class Water {
     u_lightWater: { value: new THREE.Color(0xe0e8f0) },
   } as const;
 
-  constructor(size: number = 500, seaLevel: number = 0) {
+  constructor(
+    size: number = Water.DEFAULT_SIZE,
+    seaLevel: number = Water.DEFAULT_SEA_LEVEL,
+  ) {
     this.size = size;
     this.seaLevel = seaLevel;
 
