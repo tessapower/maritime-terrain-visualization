@@ -30,6 +30,23 @@ import { logger } from "../utils/Logger.ts";
  * - islandsWeight, terrainWeight, peaksWeight: Blend weights for each feature
  */
 export default class TerrainGenerator {
+  private static readonly DEFAULT_SIZE = 500;
+  private static readonly DEFAULT_WIDTH_SEGMENTS = 257;
+  private static readonly DEFAULT_HEIGHT_SEGMENTS = 257;
+  private static readonly DEFAULT_NUM_ISLANDS = 4;
+  private static readonly DEFAULT_ISLAND_THRESHOLD = 0.3;
+  private static readonly DEFAULT_SEA_FLOOR = -10;
+  private static readonly DEFAULT_VORONOI_FALLOFF = 12;
+  private static readonly DEFAULT_WARP_STRENGTH = 50;
+  private static readonly DEFAULT_WARP_OFFSET = 60;
+  private static readonly DEFAULT_WARP_FREQUENCY = 0.01;
+  private static readonly DEFAULT_PEAKS_FREQUENCY = 0.06;
+  private static readonly DEFAULT_PEAKS_AMPLITUDE = 0.45;
+  private static readonly DEFAULT_TERRAIN_FREQUENCY = 0.03;
+  private static readonly DEFAULT_ISLANDS_WEIGHT = 30;
+  private static readonly DEFAULT_TERRAIN_WEIGHT = 20;
+  private static readonly DEFAULT_PEAKS_WEIGHT = 10;
+
   // returns a value between -1 and 1
   private readonly simplex = createNoise2D();
 
@@ -37,27 +54,27 @@ export default class TerrainGenerator {
   private readonly widthSegments: number;
   private readonly heightSegments: number;
 
-  numIslands: number = 4;
-  islandThreshold: number = 0.3;
+  numIslands: number = TerrainGenerator.DEFAULT_NUM_ISLANDS;
+  islandThreshold: number = TerrainGenerator.DEFAULT_ISLAND_THRESHOLD;
   private landTransition: { start: number; end: number } = {
     start: this.islandThreshold + 0.1,
     end: this.islandThreshold - 0.05,
   };
-  seaFloor: number = -10;
+  seaFloor: number = TerrainGenerator.DEFAULT_SEA_FLOOR;
 
-  voronoiFalloff: number = 12;
-  warpStrength: number = 50;
-  warpOffset: number = 100;
+  voronoiFalloff: number = TerrainGenerator.DEFAULT_VORONOI_FALLOFF;
+  warpStrength: number = TerrainGenerator.DEFAULT_WARP_STRENGTH;
+  warpOffset: number = TerrainGenerator.DEFAULT_WARP_OFFSET;
   // Oscillations per distance. Doubling makes everything half the size.
-  warpFrequency: number = 0.01;
+  warpFrequency: number = TerrainGenerator.DEFAULT_WARP_FREQUENCY;
 
-  peaksFrequency: number = 0.5;
-  peaksAmplitude: number = 0.45;
-  terrainFrequency: number = 0.03;
+  peaksFrequency: number = TerrainGenerator.DEFAULT_PEAKS_FREQUENCY;
+  peaksAmplitude: number = TerrainGenerator.DEFAULT_PEAKS_AMPLITUDE;
+  terrainFrequency: number = TerrainGenerator.DEFAULT_TERRAIN_FREQUENCY;
 
-  islandsWeight: number = 30;
-  terrainWeight: number = 20;
-  peaksWeight: number = 10;
+  islandsWeight: number = TerrainGenerator.DEFAULT_ISLANDS_WEIGHT;
+  terrainWeight: number = TerrainGenerator.DEFAULT_TERRAIN_WEIGHT;
+  peaksWeight: number = TerrainGenerator.DEFAULT_PEAKS_WEIGHT;
 
   /**
    * Voronoi seed points for islands. Used to calculate distance-based falloff.
@@ -65,9 +82,9 @@ export default class TerrainGenerator {
   private seedPoints: Array<{ x: number; y: number }> | undefined;
 
   constructor(
-    size: number = 500,
-    widthSegments: number = 256 + 1,
-    heightSegments: number = 256 + 1,
+    size: number = TerrainGenerator.DEFAULT_SIZE,
+    widthSegments: number = TerrainGenerator.DEFAULT_WIDTH_SEGMENTS,
+    heightSegments: number = TerrainGenerator.DEFAULT_HEIGHT_SEGMENTS,
   ) {
     logger.log("SYSTEM: INITIALIZING TERRAIN GENERATOR");
 

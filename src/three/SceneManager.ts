@@ -18,6 +18,9 @@ import Stats from "stats.js";
  * and resource cleanup.
  */
 export class SceneManager {
+  private static readonly TERRAIN_SIZE = 500;
+  private static readonly TERRAIN_RESOLUTION = 256;
+
   private readonly canvas: HTMLCanvasElement;
   private readonly scene: THREE.Scene;
   private renderer: THREE.WebGLRenderer;
@@ -28,9 +31,6 @@ export class SceneManager {
   private shadowPlane: ShadowPlane;
   private grid: Grid;
   private guiManager: GuiManager;
-
-  private readonly size: number = 500;
-  private readonly resolution: number = 256;
 
   // Camera
   private readonly orbitalCamera: OrbitalCamera;
@@ -105,10 +105,13 @@ export class SceneManager {
 
     // Create scene objects
     // TODO: remove hardcoded sizes
-    this.terrain = new Terrain(this.size, this.resolution);
-    this.water = new Water(this.size * 5, 0);
-    this.shadowPlane = new ShadowPlane(this.size * 5, 0.2);
-    this.grid = new Grid(this.size * 5, 1000, 0.8);
+    this.terrain = new Terrain(
+      SceneManager.TERRAIN_SIZE,
+      SceneManager.TERRAIN_RESOLUTION,
+    );
+    this.water = new Water(SceneManager.TERRAIN_SIZE * 5, 0);
+    this.shadowPlane = new ShadowPlane(SceneManager.TERRAIN_SIZE * 5, 0.2);
+    this.grid = new Grid(SceneManager.TERRAIN_SIZE * 5, 1000, 0.8);
 
     // Create GUI manager
     this.guiManager = new GuiManager();

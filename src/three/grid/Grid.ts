@@ -6,15 +6,19 @@ import * as THREE from "three";
  * Manages the grid overlay above the water.
  */
 export class Grid {
+  private static readonly DEFAULT_SIZE = 500;
+  private static readonly DEFAULT_DIVISIONS = 20;
+  private static readonly DEFAULT_HEIGHT = 0.5;
+
   private readonly mesh: THREE.LineSegments;
   private readonly size: number;
   private readonly divisions: number;
   private readonly height: number;
 
   constructor(
-    size: number = 500,
-    divisions: number = 20,
-    height: number = 0.5,
+    size: number = Grid.DEFAULT_SIZE,
+    divisions: number = Grid.DEFAULT_DIVISIONS,
+    height: number = Grid.DEFAULT_HEIGHT,
   ) {
     this.size = size;
     this.divisions = divisions;

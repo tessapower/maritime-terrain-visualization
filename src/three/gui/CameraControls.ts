@@ -9,23 +9,23 @@ import { type IGuiModule } from "./GuiManager";
  * parameter adjustment.
  */
 export class CameraControls implements IGuiModule {
-  private camera: OrbitalCamera;
+  private static readonly MIN_ORBIT_PERIOD = 5;
+  private static readonly MAX_ORBIT_PERIOD = 240;
+  private static readonly ORBIT_PERIOD_STEP = 5;
+  private static readonly MIN_ORBIT_RADIUS = 30;
+  private static readonly MAX_ORBIT_RADIUS = 500;
+  private static readonly ORBIT_RADIUS_STEP = 10;
+  private static readonly MIN_ORBIT_HEIGHT = 50;
+  private static readonly MAX_ORBIT_HEIGHT = 350;
+  private static readonly ORBIT_HEIGHT_STEP = 10;
+  private static readonly MIN_BOB_AMOUNT = 0;
+  private static readonly MAX_BOB_AMOUNT = 20;
+  private static readonly BOB_AMOUNT_STEP = 1;
+  private static readonly MIN_BOB_SPEED = 0;
+  private static readonly MAX_BOB_SPEED = 2.0;
+  private static readonly BOB_SPEED_STEP = 0.1;
 
-  private readonly minOrbitPeriod: number = 5;
-  private readonly maxOrbitPeriod: number = 240;
-  private readonly orbitPeriodStep: number = 5;
-  private readonly minOrbitRadius: number = 50;
-  private readonly maxOrbitRadius: number = 500;
-  private readonly orbitRadiusStep: number = 10;
-  private readonly minOrbitHeight: number = 50;
-  private readonly maxOrbitHeight: number = 350;
-  private readonly orbitHeightStep: number = 10;
-  private readonly minBobAmount: number = 0;
-  private readonly maxBobAmount: number = 20;
-  private readonly bobAmountStep: number = 1;
-  private readonly minBobSpeed: number = 0;
-  private readonly maxBobSpeed: number = 2.0;
-  private readonly bobSpeedStep: number = 0.1;
+  private camera: OrbitalCamera;
 
   constructor(camera: OrbitalCamera) {
     this.camera = camera;
@@ -48,9 +48,9 @@ export class CameraControls implements IGuiModule {
       .add(
         { period: this.camera.getOrbitPeriod() },
         "period",
-        this.minOrbitPeriod,
-        this.maxOrbitPeriod,
-        this.orbitPeriodStep,
+        CameraControls.MIN_ORBIT_PERIOD,
+        CameraControls.MAX_ORBIT_PERIOD,
+        CameraControls.ORBIT_PERIOD_STEP,
       )
       .name("Orbit Period (s)")
       .onChange((value: number) => {
@@ -64,9 +64,9 @@ export class CameraControls implements IGuiModule {
       .add(
         { radius: this.camera.getOrbitRadius() },
         "radius",
-        this.minOrbitRadius,
-        this.maxOrbitRadius,
-        this.orbitRadiusStep,
+        CameraControls.MIN_ORBIT_RADIUS,
+        CameraControls.MAX_ORBIT_RADIUS,
+        CameraControls.ORBIT_RADIUS_STEP,
       )
       .name("Orbit Radius")
       .onChange((value: number) => {
@@ -79,9 +79,9 @@ export class CameraControls implements IGuiModule {
       .add(
         { height: this.camera.getHeight() },
         "height",
-        this.minOrbitHeight,
-        this.maxOrbitHeight,
-        this.orbitHeightStep,
+        CameraControls.MIN_ORBIT_HEIGHT,
+        CameraControls.MAX_ORBIT_HEIGHT,
+        CameraControls.ORBIT_HEIGHT_STEP,
       )
       .name("Height")
       .onChange((value: number) => {
@@ -94,9 +94,9 @@ export class CameraControls implements IGuiModule {
       .add(
         { bobAmount: this.camera.getBobAmount() },
         "bobAmount",
-        this.minBobAmount,
-        this.maxBobAmount,
-        this.bobAmountStep,
+        CameraControls.MIN_BOB_AMOUNT,
+        CameraControls.MAX_BOB_AMOUNT,
+        CameraControls.BOB_AMOUNT_STEP,
       )
       .name("Bob Amount")
       .onChange((value: number) => {
@@ -110,9 +110,9 @@ export class CameraControls implements IGuiModule {
       .add(
         { bobSpeed: this.camera.getBobSpeed() },
         "bobSpeed",
-        this.minBobSpeed,
-        this.maxBobSpeed,
-        this.bobSpeedStep,
+        CameraControls.MIN_BOB_SPEED,
+        CameraControls.MAX_BOB_SPEED,
+        CameraControls.BOB_SPEED_STEP,
       )
       .name("Bob Speed")
       .onChange((value: number) => {
