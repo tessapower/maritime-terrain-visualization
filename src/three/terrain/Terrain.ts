@@ -29,6 +29,8 @@ export class Terrain {
    * - u_lineSpacing: Distance between contour lines
    * - u_lineWidth: Thickness of contour lines
    * - u_lineIntensity: Line contrast
+   * - u_fadeStartDistance: Distance from camera where fading starts
+   * - u_fadeEndDistance: Distance from camera where lines are fully faded
    */
   private readonly topoConfig = {
     u_baseColor: { value: new THREE.Color(0xf8fbff) },
@@ -36,6 +38,8 @@ export class Terrain {
     u_lineSpacing: { value: 2.0 },
     u_lineWidth: { value: 0.1 },
     u_lineIntensity: { value: 0.5 },
+    u_fadeStartDistance: { value: 150.0 },
+    u_fadeEndDistance: { value: 300.0 },
   } as const;
 
   constructor(size: number = 500, resolution: number = 256) {
