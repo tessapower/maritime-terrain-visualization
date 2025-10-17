@@ -57,18 +57,11 @@ export class Skybox {
    * @param position - The sun's position in world coordinates
    */
   setSunPosition(position: THREE.Vector3): void {
-    const phi = THREE.MathUtils.degToRad(
-      90 -
-        THREE.MathUtils.radToDeg(
-          Math.atan2(
-            position.y,
-            Math.sqrt(position.x * position.x + position.z * position.z),
-          ),
-        ),
+    const phi = Math.PI / 2 - Math.atan2(
+      position.y,
+      Math.sqrt(position.x * position.x + position.z * position.z),
     );
-    const theta = THREE.MathUtils.degToRad(
-      THREE.MathUtils.radToDeg(Math.atan2(position.x, position.z)),
-    );
+    const theta = Math.atan2(position.x, position.z);
 
     this.sun.setFromSphericalCoords(1, phi, theta);
     this.sky.material.uniforms["sunPosition"].value.copy(this.sun);
