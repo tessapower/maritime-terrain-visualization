@@ -46,6 +46,7 @@ export default class TerrainGenerator {
   private static readonly DEFAULT_ISLANDS_WEIGHT = 30;
   private static readonly DEFAULT_TERRAIN_WEIGHT = 20;
   private static readonly DEFAULT_PEAKS_WEIGHT = 10;
+  private static readonly DEFAULT_EDGE_FALLOFF = 0.15;
 
   // returns a value between -1 and 1
   private readonly simplex = createNoise2D();
@@ -75,6 +76,9 @@ export default class TerrainGenerator {
   islandsWeight: number = TerrainGenerator.DEFAULT_ISLANDS_WEIGHT;
   terrainWeight: number = TerrainGenerator.DEFAULT_TERRAIN_WEIGHT;
   peaksWeight: number = TerrainGenerator.DEFAULT_PEAKS_WEIGHT;
+
+  // Edge falloff: 0 = no falloff, 1 = entire plane is falloff zone
+  edgeFalloff: number = TerrainGenerator.DEFAULT_EDGE_FALLOFF;
 
   /**
    * Voronoi seed points for islands. Used to calculate distance-based falloff.
@@ -157,6 +161,46 @@ export default class TerrainGenerator {
     // Invert valleys to become ridges
     // return Math.abs(this.simplex(x, y));
     return 1 - Math.abs(this.simplex(x, y));
+  }
+
+  /**
+   * Returns a value between [0, 1] representing edge falloff.
+   *
+   * Calculates how close the point is to the edge of the plane.
+   * Returns 1.0 in the center, smoothly transitioning to 0.0 at the edges.
+   * This prevents terrain features from extending to the plane boundaries.
+   *
+   * @param x World x coordinate (centered at 0)
+   * @param y World y coordinate (centered at 0)
+   */
+  private calculateEdgeFalloff(x: number, y: number): number {
+    if (this.edgeFalloff <= 0) {
+      return 1.0; // No falloff
+    }
+
+    const halfWidth = this.widthSegments / 2;
+    const halfHeight = this.heightSegments / 2;
+
+    // Calculate distance from edge as a fraction [0, 1]
+    // 0 = at edge, 1 = at center
+    const distanceFromEdgeX = 1 - Math.abs(x) / halfWidth;
+    const distanceFromEdgeY = 1 - Math.abs(y) / halfHeight;
+
+    // Use the minimum (closest edge determines falloff)
+    const minDistanceFromEdge = Math.min(distanceFromEdgeX, distanceFromEdgeY);
+
+    // Calculate falloff: if we're within the falloff zone, blend to 0
+    // edgeFalloff is the fraction of the plane that should fade out
+
+    if (minDistanceFromEdge >= this.edgeFalloff) {
+      return 1.0; // Outside falloff zone, no reduction
+    }
+
+    // Inside falloff zone: smoothly interpolate from 1 to 0
+    const t = minDistanceFromEdge / this.edgeFalloff;
+
+    // Apply easing for smooth transition
+    return easeInOutSine(t);
   }
 
   /**
@@ -269,6 +313,9 @@ export default class TerrainGenerator {
       terrain * this.terrainWeight +
       peaks * this.peaksWeight;
 
+    // Apply edge falloff to prevent hills near edges
+    const edgeFalloffMultiplier = this.calculateEdgeFalloff(x, y);
+
     // Check if we need to start easing into the water
     if (islands <= this.landTransition.start) {
       // Normalize islands between start and end of land transition zone
@@ -279,11 +326,14 @@ export default class TerrainGenerator {
       );
       // Eased value indicates progress between start and end of land transition
       const easedT = easeInOutSine(t);
-      return lerp(this.seaFloor, landHeight, easedT);
+      const heightWithTransition = lerp(this.seaFloor, landHeight, easedT);
+      // Apply edge falloff (blend toward sea floor at edges)
+      return lerp(this.seaFloor, heightWithTransition, edgeFalloffMultiplier);
     }
 
     // Total possible height: 0 to 100
-    return landHeight;
+    // Apply edge falloff to gradually reduce terrain height near edges
+    return lerp(this.seaFloor, landHeight, edgeFalloffMultiplier);
   }
 
   /**
