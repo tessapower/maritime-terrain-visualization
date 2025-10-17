@@ -1,11 +1,11 @@
-// filepath: c:\Users\tp\Developer\projects\maritime-terrain-visualization\src\three\skybox\Skybox.ts
+// Skybox.ts: Skybox with a gradient sky using Three.js Sky shader.
 
 import * as THREE from "three";
 import { Sky } from "three/examples/jsm/objects/Sky.js";
 
 /**
  * Skybox with a gradient sky using Three.js Sky shader.
- * Configured to simulate a sunset atmosphere with the sun positioned
+ * Can be configured to move the sun position
  * to match the directional light in the scene.
  */
 export class Skybox {
@@ -57,10 +57,12 @@ export class Skybox {
    * @param position - The sun's position in world coordinates
    */
   setSunPosition(position: THREE.Vector3): void {
-    const phi = Math.PI / 2 - Math.atan2(
-      position.y,
-      Math.sqrt(position.x * position.x + position.z * position.z),
-    );
+    const phi =
+      Math.PI / 2 -
+      Math.atan2(
+        position.y,
+        Math.sqrt(position.x * position.x + position.z * position.z),
+      );
     const theta = Math.atan2(position.x, position.z);
 
     this.sun.setFromSphericalCoords(1, phi, theta);
