@@ -23,12 +23,12 @@ class Logger {
   // Keep logs for x seconds
   private readonly maxAge = 12000;
   // x seconds of no new logs = "inactive"
-  private readonly inactivityThreshold = 4000;
+  private readonly inactivityThreshold = 2000;
   private readonly cleanupInterval = 500;
   private lastLogTime = 0;
   // Silly things
-  private readonly jargonMinInterval = 5000; // Min 5 seconds between jargon
-  private readonly jargonMaxInterval = 15000; // Max 15 seconds between jargon
+  private readonly jargonMinInterval = 3000; // Min 3 seconds between jargon
+  private readonly jargonMaxInterval = 8000; // Max 8 seconds between jargon
   private lastJargonTime = 0;
 
   constructor() {
