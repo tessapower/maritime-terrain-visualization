@@ -59,15 +59,15 @@ export class Skybox {
   setSunPosition(position: THREE.Vector3): void {
     const phi = THREE.MathUtils.degToRad(
       90 -
-        (Math.atan2(
-          position.y,
-          Math.sqrt(position.x * position.x + position.z * position.z),
-        ) *
-          180) /
-          Math.PI,
+        THREE.MathUtils.radToDeg(
+          Math.atan2(
+            position.y,
+            Math.sqrt(position.x * position.x + position.z * position.z),
+          ),
+        ),
     );
     const theta = THREE.MathUtils.degToRad(
-      (Math.atan2(position.x, position.z) * 180) / Math.PI,
+      THREE.MathUtils.radToDeg(Math.atan2(position.x, position.z)),
     );
 
     this.sun.setFromSphericalCoords(1, phi, theta);
