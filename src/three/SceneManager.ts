@@ -7,6 +7,7 @@ import { GuiManager } from "./gui/GuiManager";
 import { logger } from "./utils/Logger.ts";
 import { OrbitalCamera } from "./camera/OrbitalCamera";
 import { ShadowPlane } from "./water/ShadowPlane.ts";
+import { Skybox } from "./skybox/Skybox.ts";
 import { TerrainControls } from "./gui/TerrainControls";
 import { Terrain } from "./terrain/Terrain";
 import { Water } from "./water/Water";
@@ -31,6 +32,7 @@ export class SceneManager {
   private shadowPlane: ShadowPlane;
   private grid: Grid;
   private guiManager: GuiManager;
+  private skybox: Skybox;
 
   // Camera
   private readonly orbitalCamera: OrbitalCamera;
@@ -112,6 +114,8 @@ export class SceneManager {
     this.water = new Water(SceneManager.TERRAIN_SIZE * 5, 0);
     this.shadowPlane = new ShadowPlane(SceneManager.TERRAIN_SIZE * 5, 0.2);
     this.grid = new Grid(SceneManager.TERRAIN_SIZE * 5, 1000, 0.8);
+    this.skybox = new Skybox();
+    this.skybox.setSunPosition(this.lightingConfig.sun.position);
 
     // Create GUI manager
     this.guiManager = new GuiManager();
@@ -136,6 +140,7 @@ export class SceneManager {
     this.scene.add(this.shadowPlane.getMesh());
     this.scene.add(this.water.getMesh());
     this.scene.add(this.grid.getMesh());
+    this.scene.add(this.skybox.getMesh());
 
     // Setup lighting
     this.setupLighting();
@@ -231,6 +236,7 @@ export class SceneManager {
     this.shadowPlane.dispose();
     this.water.dispose();
     this.grid.dispose();
+    this.skybox.dispose();
     this.guiManager.dispose();
 
     this.renderer.dispose();
