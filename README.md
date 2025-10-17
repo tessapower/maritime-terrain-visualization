@@ -1,6 +1,7 @@
 # Maritime Terrain Visualization
 
 [![Deploy to GH Pages](https://github.com/tessapower/maritime-terrain-visualization/actions/workflows/deploy.yml/badge.svg)](https://github.com/tessapower/maritime-terrain-visualization/actions/workflows/deploy.yml)
+[Live Demo](https://tessapower.xyz/maritime-terrain-visualization/)
 
 A WebGL terrain and ocean renderer with custom GLSL shaders. Procedurally generates archipelago-style islands with
 flowing water and dynamic lighting.
