@@ -1,6 +1,7 @@
 # Maritime Terrain Visualization
 
 [![Deploy to GH Pages](https://github.com/tessapower/maritime-terrain-visualization/actions/workflows/deploy.yml/badge.svg)](https://github.com/tessapower/maritime-terrain-visualization/actions/workflows/deploy.yml)
+[Live Demo](https://tessapower.xyz/maritime-terrain-visualization/)
 
 A WebGL terrain and ocean renderer with custom GLSL shaders. Procedurally generates archipelago-style islands with
 flowing water and dynamic lighting.
@@ -43,7 +44,8 @@ maritime-terrain-visualization/
 │   ├── components/
 │   │   ├── Scene.tsx              # Main 3D scene component
 │   │   └── gui/
-│   │       └── Console.tsx        # Console for logging
+│   │       ├── Console.tsx        # Console for logging
+│   │       └── Console.css        # Console styling
 │   ├── shaders/
 │   │   ├── topo/
 │   │   │   ├── topo.vs.glsl       # Terrain vertex shader
@@ -57,10 +59,14 @@ maritime-terrain-visualization/
 │   │   │   └── OrbitalCamera.ts   # Custom orbital camera implementation
 │   │   ├── terrain/
 │   │   │   ├── Terrain.ts         # Terrain mesh & material setup
-│   │   │   └── TerrainGenerator.ts # Procedural height generation (Voronoi, Perlin, domain warping)
+│   │   │   └── TerrainGenerator.ts # Procedural height generation (Voronoi, Perlin, domain warping, edge falloff)
 │   │   ├── water/
 │   │   │   ├── Water.ts           # Water mesh with custom shader
 │   │   │   └── ShadowPlane.ts     # Underwater shadow projection
+│   │   ├── skybox/
+│   │   │   └── Skybox.ts          # Skybox environment rendering
+│   │   ├── grid/
+│   │   │   └── Grid.ts            # Grid helper for debugging
 │   │   ├── gui/
 │   │   │   ├── GuiManager.ts      # lil-gui setup & management
 │   │   │   ├── TerrainControls.ts # Real-time terrain parameter controls
@@ -70,10 +76,17 @@ maritime-terrain-visualization/
 │   │       ├── Logger.ts          # Debug logging utility
 │   │       └── Jargon.ts          # Technical terminology helpers
 │   ├── App.tsx                    # Root React component
-│   └── main.tsx                   # Application entry point
+│   ├── App.css                    # Application styles
+│   ├── main.tsx                   # Application entry point
+│   ├── index.css                  # Global styles
+│   └── lil-gui-theme.css          # Custom lil-gui theming
 ├── docs/images/progress/          # Development screenshots & GIFs
 ├── index.html                     # HTML entry point
 ├── vite.config.ts                 # Vite build configuration
+├── tsconfig.json                  # TypeScript configuration
+├── tsconfig.app.json              # TypeScript app-specific configuration
+├── tsconfig.node.json             # TypeScript node-specific configuration
+├── eslint.config.js               # ESLint configuration
 └── package.json                   # Dependencies & scripts
 ```
 
