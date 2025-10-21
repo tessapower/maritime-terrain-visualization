@@ -1,12 +1,11 @@
 // TerrainGenerator.ts: generates a terrain procedurally
 
-import { createNoise2D } from "simplex-noise";
+import { createNoise2D, type NoiseFunction2D } from "simplex-noise";
 import {
   randInRangeInt,
   normalize,
   euclideanDistance,
   lerp,
-  easeInOutSine,
 } from "../utils/Math";
 import { logger } from "../utils/Logger.ts";
 
@@ -30,38 +29,54 @@ import { logger } from "../utils/Logger.ts";
  * - islandsWeight, terrainWeight, peaksWeight: Blend weights for each feature
  */
 export default class TerrainGenerator {
-  private static readonly DEFAULT_SIZE = 500;
-  private static readonly DEFAULT_WIDTH_SEGMENTS = 257;
-  private static readonly DEFAULT_HEIGHT_SEGMENTS = 257;
-  private static readonly DEFAULT_NUM_ISLANDS = 4;
-  private static readonly DEFAULT_ISLAND_THRESHOLD = 0.3;
-  private static readonly DEFAULT_SEA_FLOOR = -10;
-  private static readonly DEFAULT_VORONOI_FALLOFF = 12;
-  private static readonly DEFAULT_WARP_STRENGTH = 50;
-  private static readonly DEFAULT_WARP_OFFSET = 60;
-  private static readonly DEFAULT_WARP_FREQUENCY = 0.01;
-  private static readonly DEFAULT_PEAKS_FREQUENCY = 0.06;
-  private static readonly DEFAULT_PEAKS_AMPLITUDE = 0.45;
-  private static readonly DEFAULT_TERRAIN_FREQUENCY = 0.03;
-  private static readonly DEFAULT_ISLANDS_WEIGHT = 30;
-  private static readonly DEFAULT_TERRAIN_WEIGHT = 20;
-  private static readonly DEFAULT_PEAKS_WEIGHT = 10;
-  private static readonly DEFAULT_EDGE_FALLOFF = 0.15;
+  private static readonly DEFAULT_SIZE: number = 500;
+  private static readonly DEFAULT_WIDTH_SEGMENTS: number = 257;
+  private static readonly DEFAULT_HEIGHT_SEGMENTS: number = 257;
+
+  private static readonly DEFAULT_NUM_ISLANDS: number = 4;
+  private static readonly DEFAULT_VORONOI_FALLOFF: number = 12;
+
+  private static readonly DEFAULT_LAND_TRANSITION_START: number = 0.01;
+  private static readonly DEFAULT_LAND_TRANSITION_END: number = 0.15;
+  private static readonly DEFAULT_LAND_CUTOFF: number = 1.0;
+
+  private static readonly DEFAULT_WATER_LEVEL: number = 0;
+
+  private static readonly DEFAULT_WARP_STRENGTH: number = 50;
+  private static readonly DEFAULT_WARP_OFFSET: number = 60;
+  private static readonly DEFAULT_WARP_FREQUENCY: number = 0.01;
+
+  private static readonly DEFAULT_PEAKS_FREQUENCY: number = 0.06;
+  private static readonly DEFAULT_PEAKS_AMPLITUDE: number = 0.45;
+
+  private static readonly DEFAULT_TERRAIN_FREQUENCY: number = 0.03;
+
+  private static readonly DEFAULT_ISLANDS_WEIGHT: number = 30;
+  private static readonly DEFAULT_TERRAIN_WEIGHT: number = 20;
+  private static readonly DEFAULT_PEAKS_WEIGHT: number = 10;
+
+  private static readonly DEFAULT_EDGE_FALLOFF: number = 0.7;
 
   // returns a value between -1 and 1
-  private readonly simplex = createNoise2D();
+  private readonly simplex: NoiseFunction2D = createNoise2D();
 
   private readonly size: number;
   private readonly widthSegments: number;
   private readonly heightSegments: number;
 
+  // Non-editable parameters
+  private readonly waterLevel: number = TerrainGenerator.DEFAULT_WATER_LEVEL;
+  private readonly landTransitionStart: number =
+    TerrainGenerator.DEFAULT_LAND_TRANSITION_START;
+  private readonly landTransitionEnd: number =
+    TerrainGenerator.DEFAULT_LAND_TRANSITION_END;
+  // Edge falloff: 0 = no falloff, 1 = entire plane is falloff zone
+  private readonly edgeFalloff: number = TerrainGenerator.DEFAULT_EDGE_FALLOFF;
+
+  landCutOff: number = TerrainGenerator.DEFAULT_LAND_CUTOFF;
+
+  // Parameters editable in the GUI
   numIslands: number = TerrainGenerator.DEFAULT_NUM_ISLANDS;
-  islandThreshold: number = TerrainGenerator.DEFAULT_ISLAND_THRESHOLD;
-  private landTransition: { start: number; end: number } = {
-    start: this.islandThreshold + 0.1,
-    end: this.islandThreshold - 0.05,
-  };
-  seaFloor: number = TerrainGenerator.DEFAULT_SEA_FLOOR;
 
   voronoiFalloff: number = TerrainGenerator.DEFAULT_VORONOI_FALLOFF;
   warpStrength: number = TerrainGenerator.DEFAULT_WARP_STRENGTH;
@@ -76,9 +91,6 @@ export default class TerrainGenerator {
   islandsWeight: number = TerrainGenerator.DEFAULT_ISLANDS_WEIGHT;
   terrainWeight: number = TerrainGenerator.DEFAULT_TERRAIN_WEIGHT;
   peaksWeight: number = TerrainGenerator.DEFAULT_PEAKS_WEIGHT;
-
-  // Edge falloff: 0 = no falloff, 1 = entire plane is falloff zone
-  edgeFalloff: number = TerrainGenerator.DEFAULT_EDGE_FALLOFF;
 
   /**
    * Voronoi seed points for islands. Used to calculate distance-based falloff.
@@ -144,11 +156,38 @@ export default class TerrainGenerator {
     // Far from seed point = low value (water)
     const normalizedDistance = minDistance / maxDistance;
 
-    // Inverse squared: uncomment to use inverse squared falloff
-    // const value = 1 / (1 + minDistance * minDistance / 100);
-
     // Exponential falloff to create more defined islands
     return Math.exp(-normalizedDistance * this.voronoiFalloff);
+  }
+
+  /**
+   * Smooths a value using neighboring samples to reduce jaggedness.
+   * This is essentially a blur operation in noise space.
+   */
+  private smoothVoronoi(x: number, y: number): number {
+    const baseValue = this.voronoi(x, y);
+
+    // Sample neighboring points and average them
+    const sampleRadius = 3; // Adjust for more/less smoothing
+    const samples = [
+      this.voronoi(x + sampleRadius, y),
+      this.voronoi(x - sampleRadius, y),
+      this.voronoi(x, y + sampleRadius),
+      this.voronoi(x, y - sampleRadius),
+      this.voronoi(x + sampleRadius, y + sampleRadius),
+      this.voronoi(x - sampleRadius, y - sampleRadius),
+      this.voronoi(x + sampleRadius, y - sampleRadius),
+      this.voronoi(x - sampleRadius, y + sampleRadius),
+    ];
+
+    // Weighted average: center point has more influence
+    const centerWeight = 2.0;
+    const totalWeight = centerWeight + samples.length;
+
+    return (
+      (baseValue * centerWeight + samples.reduce((sum, val) => sum + val, 0)) /
+      totalWeight
+    );
   }
 
   /**
@@ -174,13 +213,12 @@ export default class TerrainGenerator {
    * @param y World y coordinate (centered at 0)
    */
   private calculateEdgeFalloff(x: number, y: number): number {
-    if (this.edgeFalloff <= 0) {
-      return 1.0; // No falloff
-    }
+    if (this.edgeFalloff <= 0) return 1.0; // No falloff
 
     const halfWidth = this.widthSegments / 2;
     const halfHeight = this.heightSegments / 2;
 
+    // Rectangular falloff
     // Calculate distance from edge as a fraction [0, 1]
     // 0 = at edge, 1 = at center
     const distanceFromEdgeX = 1 - Math.abs(x) / halfWidth;
@@ -189,18 +227,22 @@ export default class TerrainGenerator {
     // Use the minimum (closest edge determines falloff)
     const minDistanceFromEdge = Math.min(distanceFromEdgeX, distanceFromEdgeY);
 
+    // Radial falloff from center
+    const distanceFromCenter = Math.sqrt(x ** 2 + y ** 2);
+    const maxDistance = Math.sqrt(halfWidth ** 2 + halfHeight ** 2);
+    const radialFalloff = 1 - distanceFromCenter / maxDistance;
+
+    const combinedFalloff = Math.min(minDistanceFromEdge, radialFalloff);
+
     // Calculate falloff: if we're within the falloff zone, blend to 0
     // edgeFalloff is the fraction of the plane that should fade out
-
-    if (minDistanceFromEdge >= this.edgeFalloff) {
-      return 1.0; // Outside falloff zone, no reduction
-    }
+    if (combinedFalloff >= this.edgeFalloff) return 1.0;
 
     // Inside falloff zone: smoothly interpolate from 1 to 0
-    const t = minDistanceFromEdge / this.edgeFalloff;
+    const t = combinedFalloff / this.edgeFalloff;
 
-    // Apply easing for smooth transition
-    return easeInOutSine(t);
+    const smoothT = t * t * (3 - 2 * t);
+    return smoothT * smoothT * smoothT;
   }
 
   /**
@@ -275,6 +317,7 @@ export default class TerrainGenerator {
     //     *───┘   B   │
     //          ╲     ╱
     //           *───*
+    //                C
 
     const warpedX =
       x +
@@ -288,52 +331,49 @@ export default class TerrainGenerator {
       ) *
         this.warpStrength;
 
-    // Base island shape (0-50 range)
-    const islands = this.voronoi(warpedX, warpedY);
+    // Base island shape
+    const islands = this.smoothVoronoi(warpedX, warpedY);
 
-    if (islands <= this.landTransition.end) {
-      // Definitely water
-      return this.seaFloor;
-    }
-
-    // Hills and valleys (0-30 range)
+    // Hills and valleys
     const terrain = this.simplex(
       x * this.terrainFrequency,
       y * this.terrainFrequency,
     );
 
-    // Sharp mountain ridges (0-20 range)
+    // Sharp mountain ridges
     const peaks =
       this.peaksAmplitude *
       this.ridgedNoise(x * this.peaksFrequency, y * this.peaksFrequency);
 
     // TODO: introduce islands : terrain : peaks noise ratios
-    const landHeight =
+    let landHeight =
       islands * this.islandsWeight +
       terrain * this.terrainWeight +
       peaks * this.peaksWeight;
 
-    // Apply edge falloff to prevent hills near edges
+    // Apply edge falloff
     const edgeFalloffMultiplier = this.calculateEdgeFalloff(x, y);
+    landHeight = lerp(this.waterLevel, landHeight, edgeFalloffMultiplier);
 
     // Check if we need to start easing into the water
-    if (islands <= this.landTransition.start) {
+    if (islands <= this.landTransitionStart) {
       // Normalize islands between start and end of land transition zone
       const t = normalize(
         islands,
-        this.landTransition.end,
-        this.landTransition.start,
+        this.landTransitionEnd,
+        this.landTransitionStart,
       );
-      // Eased value indicates progress between start and end of land transition
-      const easedT = easeInOutSine(t);
-      const heightWithTransition = lerp(this.seaFloor, landHeight, easedT);
-      // Apply edge falloff (blend toward sea floor at edges)
-      return lerp(this.seaFloor, heightWithTransition, edgeFalloffMultiplier);
+
+      const clampedT = Math.max(0, Math.min(1, t));
+
+      const easedT = clampedT ** 4;
+
+      const easedLandHeight = lerp(this.waterLevel, landHeight, easedT);
+
+      return easedLandHeight <= 1.0 ? this.waterLevel : easedLandHeight;
     }
 
-    // Total possible height: 0 to 100
-    // Apply edge falloff to gradually reduce terrain height near edges
-    return lerp(this.seaFloor, landHeight, edgeFalloffMultiplier);
+    return landHeight;
   }
 
   /**
