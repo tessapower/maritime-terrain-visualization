@@ -126,7 +126,7 @@ export class TerrainControls implements IGuiModule {
 
     // Global change listener
     gui.onFinishChange(() => {
-      this.terrain.update();
+      this.terrain.updateMesh();
     });
   }
 

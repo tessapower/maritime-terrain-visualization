@@ -133,7 +133,7 @@ export class Terrain {
   /**
    * Updates terrain with current parameters (same seed points)
    */
-  update(): void {
+  updateMesh(): void {
     logger.log("UPDATING TERRAIN (SAME SEEDS)");
     const heightMap = this.generator.generateHeightMap(true);
 
