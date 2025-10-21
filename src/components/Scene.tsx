@@ -16,7 +16,7 @@ export const Scene = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneManagerRef = useRef<SceneManager | null>(null);
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (!canvasRef.current) return;
 
     // Initialize Three.js scene

@@ -187,6 +187,7 @@ export class SceneManager {
 
     // Update terrain shader with sun direction
     this.terrain.setSunDirection(sun.position, sun.targetPosition);
+
     logger.log("LIGHTING: COMPLETE ✓");
   }
 
