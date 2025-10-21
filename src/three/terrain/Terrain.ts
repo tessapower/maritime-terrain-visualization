@@ -3,9 +3,8 @@
 import * as THREE from "three";
 import TerrainGenerator from "./TerrainGenerator";
 import { logger } from "../utils/Logger";
-import topoVertexShader from "../../shaders/topo/topo.vs.glsl?raw";
-import topoFragmentShader from "../../shaders/topo/topo.fs.glsl?raw";
-
+import vertShader from "../../shaders/unified/unified.vs.glsl?raw";
+import fragShader from "../../shaders/unified/unified.fs.glsl?raw";
 /**
  * Manages terrain mesh creation, shader material, and height generation.
  *
@@ -43,6 +42,20 @@ export class Terrain {
     u_lineIntensity: { value: 0.5 },
     u_fadeStartDistance: { value: 150.0 },
     u_fadeEndDistance: { value: 300.0 },
+    u_landCutOff: { value: 1.0 },
+  } as const;
+
+  private readonly waterConfig = {
+    u_seaLevel: { value: 0 },
+    u_deepWater: { value: new THREE.Color(0x7293b0) },
+    u_midWater: { value: new THREE.Color(0x8ea8bf) },
+    u_lightWater: { value: new THREE.Color(0xe0e8f0) },
+    u_waveScale: { value: 3.0 },
+    u_warpOffset: { value: 0.03 },
+    u_timeScalarSlow: { value: 0.009 },
+    u_timeScalarFast: { value: 0.018 },
+    u_numOctaves: { value: 5 },
+    u_octaveGain: { value: 0.5 },
   } as const;
 
   constructor(
@@ -57,8 +70,10 @@ export class Terrain {
       this.segments + 1,
     );
 
+    this.generator.landCutOff = this.topoConfig.u_landCutOff.value;
+
     // Create initial terrain
-    this.material = this.createTopoMaterial();
+    this.material = this.createMaterial();
     this.mesh = this.createTerrainMesh();
     this.generateHeights();
   }
@@ -79,21 +94,23 @@ export class Terrain {
     return mesh;
   }
 
-  private createTopoMaterial(): THREE.ShaderMaterial {
+  private createMaterial(): THREE.ShaderMaterial {
     const uniforms = {
       ...this.topoConfig,
-      u_sunDirection: { value: new THREE.Vector3() },
+      ...this.waterConfig,
       u_cameraPosition: { value: new THREE.Vector3() },
+      u_sunDirection: { value: new THREE.Vector3() },
+      u_time: { value: 0 },
     };
 
     const material = new THREE.ShaderMaterial({
       uniforms,
-      vertexShader: topoVertexShader,
-      fragmentShader: topoFragmentShader,
+      vertexShader: vertShader,
+      fragmentShader: fragShader,
     });
 
     if (material.isShaderMaterial) {
-      logger.log("TOPO SHADER MATERIAL COMPILED ✓");
+      logger.log("TERRAIN SHADER MATERIAL COMPILED ✓");
     }
 
     return material;
@@ -139,6 +156,17 @@ export class Terrain {
 
     this.applyHeightMap(heightMap);
     logger.log("TERRAIN UPDATED");
+  }
+
+  /**
+   * Updates the shaders for the terrain.
+   *
+   * @param time
+   */
+  update(time: number): void {
+    if (this.material.uniforms.u_time) {
+      this.material.uniforms.u_time.value = time;
+    }
   }
 
   /**

@@ -203,6 +203,7 @@ export class SceneManager {
     this.orbitalCamera.update(time);
 
     // Update terrain shader with camera position for LOD
+    this.terrain.update(time);
     this.terrain.updateCameraPosition(this.orbitalCamera.getCamera().position);
 
     this.renderer.render(this.scene, this.orbitalCamera.getCamera());
