@@ -1,35 +1,50 @@
 /*
- * Fragment shader for animated, flowing water-like effects.
- *
- * Key concepts:
- * - Domain warping and Fractional Brownian Motion (fBm) for organic, animated water
- * - Simplex noise for smooth, natural variation
- * - Parameters (u_time, u_worldScale) control animation and scale
- * - Color and lighting can be added for realism
-
- * Source(s): - https://iquilezles.org/articles/fbm/
- *            - https://iquilezles.org/articles/warp/
- *            - https://thebookofshaders.com/11/ (Noise)
- *            - https://thebookofshaders.com/13/ (fBm)
- *
- * See comments below for how domain warping and fBm are implemented.
+ * Unified fragment shader combining terrain (topo) and water shaders.
+ * Conditionally renders water or terrain based on height (v_height).
+ * - Below seaLevel: water shader with fBm and domain warping
+ * - Above seaLevel: terrain shader with topographic contour lines
  */
 
 #ifdef GL_ES
 precision mediump float;
 #endif
 
-// Canvas width and height in pixels
-uniform vec2 u_resolution;
+// Common uniforms
+uniform vec3 u_cameraPosition;
+uniform vec3 u_sunDirection;
 uniform float u_time;
-uniform vec2 u_worldScale;
 
-// Uniforms for water colors
+// Terrain uniforms
+uniform vec3 u_baseColor;
+uniform vec3 u_lineColor;
+uniform float u_lineSpacing;
+uniform float u_lineWidth;
+uniform float u_lineIntensity;
+uniform float u_fadeStartDistance;
+uniform float u_fadeEndDistance;
+uniform float u_landCutOff;
+
+// Water uniforms
+uniform float u_waterLevel;
 uniform vec3 u_deepWater;
 uniform vec3 u_midWater;
 uniform vec3 u_lightWater;
+uniform float u_waveScale;
+uniform float u_warpOffset;
+uniform float u_timeScalarSlow;
+uniform float u_timeScalarFast;
+uniform int u_numOctaves;
+uniform float u_octaveGain;
 
+// Transition uniforms
+uniform float u_transitionWidth;
+
+// Varyings
+varying vec3 v_position;
+varying vec3 v_normal;
+varying vec3 v_worldPosition;
 varying vec2 v_uv;
+varying float v_height;
 
 //===================================================== SIMPLEX NOISE 2D ====//
 // Helper functions and implementation of the Simplex noise function.
@@ -153,18 +168,9 @@ float fbm(in vec2 p) {
     return t;
 }
 
-// Constants
-// Larger scale = smaller waves
-const float waveScale = 3.0;
-const float warpOffset = 0.03;
-// Adds subtle variation so everything doesn't flow together
-const float timeScalarSlow = 0.005;
-const float timeScalarFast = 0.01;
-
-void main() {
-    // Normalize pixel coordinates to [0, 1] range
-    vec2 p = v_uv;
-    p *= waveScale;
+//============================================== WATER SHADER FUNCTION ====//
+vec3 renderWater(vec2 uv, float time, vec3 normal, vec3 worldPos) {
+    vec2 p = uv * u_waveScale;
 
     //=================================================== DOMAIN WARPING ====//
     // Layer 1:
@@ -173,47 +179,86 @@ void main() {
     vec2 q = vec2(0.0);
     // Slow flowing motion
     // Static-ish X distortion
-    q.x = fbm(p + warpOffset);
+    q.x = fbm(p + u_warpOffset);
     // Static-ish Y distortion (offset for variation)
-    q.y = fbm(p + vec2(1.0) + warpOffset);
+    q.y = fbm(p + vec2(1.0) + u_warpOffset);
 
     // Layer 2:
     // Use the first warp (q) to warp the input AGAIN, creates more complex,
     // organic flowing patterns. Both components animate slowly with time
     vec2 r = vec2(0.0);
     // Warp using q, animate slowly
-    r.x = fbm(p + 1.0 * q + timeScalarSlow * u_time);
+    r.x = fbm(p + 1.0 * q + u_timeScalarSlow * time);
     // Slightly different speed for variation
-    r.y = fbm(p + 1.0 * q + timeScalarFast * u_time);
+    r.y = fbm(p + 1.0 * q + u_timeScalarFast * time);
 
     // Layer 3:
     // Triple-warped noise for final detail, creates the most complex, flowing
     // organic patterns
-    float f = fbm(p + r + timeScalarFast * u_time);
+    float f = fbm(p + r + u_timeScalarFast * time);
 
     // Normalize noise to [0, 1] range (softens the color transitions)
     f = f * 0.5 + 0.5;
 
     //===================================================== COLOR MIXING ====//
-    // Start with black
-    vec3 color = vec3(0.0);
-
-    // Use uniforms for water colors (passed from TypeScript)
-    vec3 deepWater = u_deepWater;
-    vec3 midWater = u_midWater;
-    vec3 lightWater = u_lightWater;
-
     // Only affects high values (creates highlights)
-    color = mix(deepWater, midWater, f);
+    vec3 color = mix(u_deepWater, u_midWater, f);
 
     // Add variation based on first warp layer (q) and normalize
     float qInfluence = length(q) * 0.5 + 0.5;
     // Blend based on magnitude of first warp
-    color = mix(color, lightWater, qInfluence * 0.3);
+    color = mix(color, u_lightWater, qInfluence * 0.3);
 
     // Add subtle highlights based on second warp layer (r) and normalize
     float rInfluence = length(r) * 0.5 + 0.5;
-    color = mix(color, lightWater, rInfluence * 0.2);
+    color = mix(color, u_lightWater, rInfluence * 0.2);
 
-    gl_FragColor = vec4(color, 1.0);
+    // Apply lighting to water (for shadows)
+    vec3 waterNormal = vec3(0.0, 1.0, 0.0);
+    float diffuse = max(dot(waterNormal, u_sunDirection), 0.0) * 0.5 + 0.5;
+
+    return color * diffuse;
+}
+
+//============================================= TERRAIN SHADER FUNCTION ====//
+vec3 renderTerrain(float height, vec3 normal, vec3 worldPos) {
+    float distanceFromCamera = length(u_cameraPosition - worldPos);
+    float distanceFade = 1.0 - smoothstep(u_fadeStartDistance, u_fadeEndDistance, distanceFromCamera);
+
+    // Simple lighting
+    float diffuse = max(dot(normal, u_sunDirection), 0.0) * 0.5 + 0.5;
+
+    float heightFade = smoothstep(0.5, 2.0, height);
+
+    // Early exit if completely faded, don't render below a certain height
+    if (distanceFade <= 0.05 || heightFade <= 0.05) {
+        return u_baseColor * diffuse;
+    }
+
+    // Calculate contour lines
+    float contour = mod(height, u_lineSpacing);
+    float lineEdge = u_lineWidth * 0.2;
+
+    float line = smoothstep(lineEdge, lineEdge * 0.5, contour) +
+    smoothstep(u_lineSpacing - lineEdge, u_lineSpacing - lineEdge * 0.5, contour);
+
+    float finalLineIntensity = u_lineIntensity * distanceFade * heightFade;
+    vec3 color = mix(u_baseColor, u_lineColor, line * finalLineIntensity);
+
+    return color * diffuse;
+}
+
+//================================================================= MAIN ====//
+void main() {
+    vec3 finalColor;
+
+    if (v_height <= u_landCutOff) { // Water (at or very close to sea level)
+        // Pass flat normal for water
+        vec3 flatNormal = vec3(0.0, 1.0, 0.0);// World space up
+        finalColor = renderWater(v_uv, u_time, flatNormal, v_worldPosition);
+    } else { // Terrain
+        finalColor = renderTerrain(v_height, v_normal, v_worldPosition);
+    }
+
+    gl_FragColor = vec4(finalColor, 1.0);
 }

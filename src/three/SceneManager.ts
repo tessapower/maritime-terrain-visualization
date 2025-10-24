@@ -6,11 +6,9 @@ import { Grid } from "./grid/Grid.ts";
 import { GuiManager } from "./gui/GuiManager";
 import { logger } from "./utils/Logger.ts";
 import { OrbitalCamera } from "./camera/OrbitalCamera";
-import { ShadowPlane } from "./water/ShadowPlane.ts";
 import { Skybox } from "./skybox/Skybox.ts";
 import { TerrainControls } from "./gui/TerrainControls";
 import { Terrain } from "./terrain/Terrain";
-import { Water } from "./water/Water";
 import Stats from "stats.js";
 
 /**
@@ -19,8 +17,11 @@ import Stats from "stats.js";
  * and resource cleanup.
  */
 export class SceneManager {
-  private static readonly TERRAIN_SIZE = 500;
-  private static readonly TERRAIN_RESOLUTION = 256;
+  private static readonly TERRAIN_SIZE = 2000;
+  private static readonly TERRAIN_RESOLUTION = 1024;
+
+  private static readonly GRID_DIVISIONS: number = 1000;
+  private static readonly GRID_HEIGHT: number = 0.8;
 
   private readonly canvas: HTMLCanvasElement;
   private readonly scene: THREE.Scene;
@@ -28,8 +29,6 @@ export class SceneManager {
   private animationId: number | null = null;
 
   private readonly terrain: Terrain;
-  private water: Water;
-  private shadowPlane: ShadowPlane;
   private grid: Grid;
   private guiManager: GuiManager;
   private skybox: Skybox;
@@ -111,9 +110,8 @@ export class SceneManager {
       SceneManager.TERRAIN_SIZE,
       SceneManager.TERRAIN_RESOLUTION,
     );
-    this.water = new Water(SceneManager.TERRAIN_SIZE * 5, 0);
-    this.shadowPlane = new ShadowPlane(SceneManager.TERRAIN_SIZE * 5, 0.2);
-    this.grid = new Grid(SceneManager.TERRAIN_SIZE * 5, 1000, 0.8);
+
+    this.grid = new Grid(SceneManager.TERRAIN_SIZE, SceneManager.GRID_DIVISIONS, SceneManager.GRID_HEIGHT);
     this.skybox = new Skybox();
     this.skybox.setSunPosition(this.lightingConfig.sun.position);
 
@@ -137,8 +135,6 @@ export class SceneManager {
     this.scene.background = new THREE.Color(0x232935);
 
     this.scene.add(this.terrain.getMesh());
-    this.scene.add(this.shadowPlane.getMesh());
-    this.scene.add(this.water.getMesh());
     this.scene.add(this.grid.getMesh());
     this.scene.add(this.skybox.getMesh());
 
@@ -194,6 +190,7 @@ export class SceneManager {
 
     // Update terrain shader with sun direction
     this.terrain.setSunDirection(sun.position, sun.targetPosition);
+
     logger.log("LIGHTING: COMPLETE ✓");
   }
 
@@ -208,9 +205,9 @@ export class SceneManager {
     const time = performance.now() * 0.001; // Convert to seconds
 
     this.orbitalCamera.update(time);
-    this.water.update(time);
 
     // Update terrain shader with camera position for LOD
+    this.terrain.update(time);
     this.terrain.updateCameraPosition(this.orbitalCamera.getCamera().position);
 
     this.renderer.render(this.scene, this.orbitalCamera.getCamera());
@@ -233,8 +230,6 @@ export class SceneManager {
 
     // Dispose scene objects
     this.terrain.dispose();
-    this.shadowPlane.dispose();
-    this.water.dispose();
     this.grid.dispose();
     this.skybox.dispose();
     this.guiManager.dispose();
