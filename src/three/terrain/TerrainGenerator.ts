@@ -332,7 +332,8 @@ export default class TerrainGenerator {
         this.warpStrength;
 
     // Base island shape
-    const islands = this.smoothVoronoi(warpedX, warpedY);
+    //const islands = this.smoothVoronoi(warpedX, warpedY);
+      const islands = this.voronoi(warpedX, warpedY);
 
     // Hills and valleys
     const terrain = this.simplex(
@@ -349,7 +350,9 @@ export default class TerrainGenerator {
     let landHeight =
       islands * this.islandsWeight +
       terrain * this.terrainWeight +
-      peaks * this.peaksWeight;
+        // TODO: Decide if ridgedNoise is worth keeping around after introducing erosion
+        // this.peaks * this.peaksWeight;
+      this.peaksAmplitude * this.peaksWeight;
 
     // Apply edge falloff
     const edgeFalloffMultiplier = this.calculateEdgeFalloff(x, y);
