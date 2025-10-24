@@ -31,6 +31,8 @@ export class OrbitalCamera {
   private static readonly DEFAULT_BOB_AMOUNT = 2;
   private static readonly DEFAULT_BOB_SPEED = 1.0;
   private static readonly DEFAULT_ENABLED = true;
+  private static readonly DEFAULT_NEAR_PLANE = 0.1;
+  private static readonly DEFAULT_FAR_PLANE = 3000;
 
   private readonly camera: THREE.PerspectiveCamera;
   private orbitRadius: number;
@@ -47,7 +49,7 @@ export class OrbitalCamera {
 
   constructor(aspectRatio: number, config: OrbitalCameraConfig = {}) {
     // Create camera
-    this.camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
+    this.camera = new THREE.PerspectiveCamera(75, aspectRatio, OrbitalCamera.DEFAULT_NEAR_PLANE, OrbitalCamera.DEFAULT_FAR_PLANE);
 
     // Apply config with defaults
     this.orbitRadius = config.orbitRadius ?? OrbitalCamera.DEFAULT_ORBIT_RADIUS;

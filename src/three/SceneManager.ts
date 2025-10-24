@@ -17,8 +17,11 @@ import Stats from "stats.js";
  * and resource cleanup.
  */
 export class SceneManager {
-  private static readonly TERRAIN_SIZE = 500;
-  private static readonly TERRAIN_RESOLUTION = 256;
+  private static readonly TERRAIN_SIZE = 2000;
+  private static readonly TERRAIN_RESOLUTION = 1024;
+
+  private static readonly GRID_DIVISIONS: number = 1000;
+  private static readonly GRID_HEIGHT: number = 0.8;
 
   private readonly canvas: HTMLCanvasElement;
   private readonly scene: THREE.Scene;
@@ -108,7 +111,7 @@ export class SceneManager {
       SceneManager.TERRAIN_RESOLUTION,
     );
 
-    this.grid = new Grid(SceneManager.TERRAIN_SIZE * 5, 1000, 0.8);
+    this.grid = new Grid(SceneManager.TERRAIN_SIZE, SceneManager.GRID_DIVISIONS, SceneManager.GRID_HEIGHT);
     this.skybox = new Skybox();
     this.skybox.setSunPosition(this.lightingConfig.sun.position);
 
