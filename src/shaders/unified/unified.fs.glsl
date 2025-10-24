@@ -238,6 +238,7 @@ vec3 renderTerrain(float height, vec3 normal, vec3 worldPos) {
     // Calculate contour lines
     float contour = mod(height, u_lineSpacing);
     float lineEdge = u_lineWidth * 0.2;
+
     float line = smoothstep(lineEdge, lineEdge * 0.5, contour) +
     smoothstep(u_lineSpacing - lineEdge, u_lineSpacing - lineEdge * 0.5, contour);
 
