@@ -37,8 +37,8 @@ export class Terrain {
   private readonly topoConfig = {
     u_baseColor: { value: new THREE.Color(0xf8fbff) },
     u_lineColor: { value: new THREE.Color(0x82878c) },
-    u_lineSpacing: { value: 2.0 },
-    u_lineWidth: { value: 0.5 },
+    u_lineSpacing: { value: 4.0 },
+    u_lineWidth: { value: 0.3 },
     u_lineIntensity: { value: 0.5 },
     u_fadeStartDistance: { value: 150.0 },
     u_fadeEndDistance: { value: 300.0 },

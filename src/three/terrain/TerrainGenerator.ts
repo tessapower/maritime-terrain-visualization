@@ -34,10 +34,10 @@ export default class TerrainGenerator {
   private static readonly DEFAULT_HEIGHT_SEGMENTS: number = 257;
 
   private static readonly DEFAULT_NUM_ISLANDS: number = 4;
-  private static readonly DEFAULT_VORONOI_FALLOFF: number = 12;
+  private static readonly DEFAULT_VORONOI_FALLOFF: number = 18;
 
-  private static readonly DEFAULT_LAND_TRANSITION_START: number = 0.01;
-  private static readonly DEFAULT_LAND_TRANSITION_END: number = 0.15;
+  private static readonly DEFAULT_LAND_TRANSITION_START: number = 0.08;
+  private static readonly DEFAULT_LAND_TRANSITION_END: number = 0.02;
   private static readonly DEFAULT_LAND_CUTOFF: number = 1.0;
 
   private static readonly DEFAULT_WATER_LEVEL: number = 0;
@@ -51,11 +51,11 @@ export default class TerrainGenerator {
 
   private static readonly DEFAULT_TERRAIN_FREQUENCY: number = 0.03;
 
-  private static readonly DEFAULT_ISLANDS_WEIGHT: number = 30;
+  private static readonly DEFAULT_ISLANDS_WEIGHT: number = 50;
   private static readonly DEFAULT_TERRAIN_WEIGHT: number = 20;
-  private static readonly DEFAULT_PEAKS_WEIGHT: number = 10;
+  private static readonly DEFAULT_PEAKS_WEIGHT: number = 20;
 
-  private static readonly DEFAULT_EDGE_FALLOFF: number = 0.7;
+  private static readonly DEFAULT_EDGE_FALLOFF: number = 0.8;
 
   // returns a value between -1 and 1
   private readonly simplex: NoiseFunction2D = createNoise2D();
