@@ -7,10 +7,10 @@ import { logger } from "./utils/Logger.ts";
 import { OrbitalCamera } from "./camera/OrbitalCamera";
 import { Skybox } from "./skybox/Skybox.ts";
 import Stats from "stats.js";
-import { Mountain } from "./terrain/Mountain.ts";
+import { Landscape } from "./terrain/Landscape.ts";
 
 /**
- * Orchestrates the Three.js scene, including mountain, lighting, camera, and
+ * Orchestrates the Three.js scene, including landscape, lighting, camera, and
  * GUI modules. Handles initialization, animation loop, resizing, and
  * resource cleanup.
  */
@@ -23,7 +23,7 @@ export class SceneMgr {
   private renderer: THREE.WebGLRenderer;
   private animationId: number | null = null;
 
-  private readonly mountain: Mountain;
+  private readonly landscape: Landscape;
 
   private guiManager: GuiManager;
   private skybox: Skybox;
@@ -63,7 +63,7 @@ export class SceneMgr {
   } as const;
 
   constructor(canvas: HTMLCanvasElement) {
-    logger.log("SYSTEM: INITIALIZING SCENE MANAGER");
+    logger.log("SYSTEM: INITIALIZING SCENE MGR");
 
     this.canvas = canvas;
     this.scene = new THREE.Scene();
@@ -99,8 +99,7 @@ export class SceneMgr {
 
     logger.log("RENDERER: INITIALIZED ✓");
 
-    // Create scene objects
-    this.mountain = new Mountain(
+    this.landscape = new Landscape(
       SceneMgr.TERRAIN_SIZE,
       SceneMgr.TERRAIN_RESOLUTION,
     );
@@ -126,7 +125,7 @@ export class SceneMgr {
   private setupScene(): void {
     this.scene.background = new THREE.Color(0x232935);
 
-    this.scene.add(this.mountain.getMesh());
+    this.scene.add(this.landscape.getMesh());
     this.scene.add(this.skybox.getMesh());
 
     // Setup lighting
@@ -213,7 +212,7 @@ export class SceneMgr {
     window.removeEventListener("resize", this.handleResize);
 
     // Dispose scene objects
-    this.mountain.dispose();
+    this.landscape.dispose();
     this.skybox.dispose();
     this.guiManager.dispose();
 
