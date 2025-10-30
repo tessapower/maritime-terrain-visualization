@@ -33,8 +33,8 @@ export default class TerrainGenerator {
   private static readonly DEFAULT_WIDTH_SEGMENTS: number = 257;
   private static readonly DEFAULT_HEIGHT_SEGMENTS: number = 257;
 
-  private static readonly DEFAULT_NUM_ISLANDS: number = 4;
-  private static readonly DEFAULT_VORONOI_FALLOFF: number = 18;
+  private static readonly DEFAULT_NUM_ISLANDS: number = 6;
+  private static readonly DEFAULT_VORONOI_FALLOFF: number = 50;
 
   private static readonly DEFAULT_LAND_TRANSITION_START: number = 0.08;
   private static readonly DEFAULT_LAND_TRANSITION_END: number = 0.02;
@@ -51,11 +51,12 @@ export default class TerrainGenerator {
 
   private static readonly DEFAULT_TERRAIN_FREQUENCY: number = 0.03;
 
-  private static readonly DEFAULT_ISLANDS_WEIGHT: number = 50;
-  private static readonly DEFAULT_TERRAIN_WEIGHT: number = 20;
-  private static readonly DEFAULT_PEAKS_WEIGHT: number = 20;
+  private static readonly DEFAULT_ISLANDS_WEIGHT: number = 80;
+  private static readonly DEFAULT_TERRAIN_WEIGHT: number = 10;
+  private static readonly DEFAULT_PEAKS_WEIGHT: number = 10;
 
-  private static readonly DEFAULT_EDGE_FALLOFF: number = 0.8;
+  private static readonly DEFAULT_EDGE_FALLOFF: number = 0.2;
+
 
   // returns a value between -1 and 1
   private readonly simplex: NoiseFunction2D = createNoise2D();
@@ -333,7 +334,7 @@ export default class TerrainGenerator {
 
     // Base island shape
     //const islands = this.smoothVoronoi(warpedX, warpedY);
-      const islands = this.voronoi(warpedX, warpedY);
+    const islands = this.voronoi(warpedX, warpedY);
 
     // Hills and valleys
     const terrain = this.simplex(
