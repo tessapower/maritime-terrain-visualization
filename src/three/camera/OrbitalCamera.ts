@@ -25,10 +25,10 @@ interface OrbitalCameraConfig {
  */
 export class OrbitalCamera {
   // Default camera configuration values
-  private static readonly DEFAULT_ORBIT_RADIUS = 100;
-  private static readonly DEFAULT_HEIGHT = 100;
+  private static readonly DEFAULT_ORBIT_RADIUS = 500;
+  private static readonly DEFAULT_HEIGHT = 200;
   private static readonly DEFAULT_ORBIT_PERIOD = 120;
-  private static readonly DEFAULT_BOB_AMOUNT = 2;
+  private static readonly DEFAULT_BOB_AMOUNT = 0;
   private static readonly DEFAULT_BOB_SPEED = 1.0;
   private static readonly DEFAULT_ENABLED = true;
   private static readonly DEFAULT_NEAR_PLANE = 0.1;
