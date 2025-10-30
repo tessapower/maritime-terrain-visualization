@@ -49,7 +49,12 @@ export class OrbitalCamera {
 
   constructor(aspectRatio: number, config: OrbitalCameraConfig = {}) {
     // Create camera
-    this.camera = new THREE.PerspectiveCamera(75, aspectRatio, OrbitalCamera.DEFAULT_NEAR_PLANE, OrbitalCamera.DEFAULT_FAR_PLANE);
+    this.camera = new THREE.PerspectiveCamera(
+      75,
+      aspectRatio,
+      OrbitalCamera.DEFAULT_NEAR_PLANE,
+      OrbitalCamera.DEFAULT_FAR_PLANE,
+    );
 
     // Apply config with defaults
     this.orbitRadius = config.orbitRadius ?? OrbitalCamera.DEFAULT_ORBIT_RADIUS;

@@ -30,6 +30,7 @@ export class SceneManager {
 
   private readonly terrain: Terrain;
   private grid: Grid;
+
   private guiManager: GuiManager;
   private skybox: Skybox;
 
@@ -105,13 +106,17 @@ export class SceneManager {
     logger.log("RENDERER: INITIALIZED ✓");
 
     // Create scene objects
-    // TODO: remove hardcoded sizes
     this.terrain = new Terrain(
       SceneManager.TERRAIN_SIZE,
       SceneManager.TERRAIN_RESOLUTION,
     );
 
-    this.grid = new Grid(SceneManager.TERRAIN_SIZE, SceneManager.GRID_DIVISIONS, SceneManager.GRID_HEIGHT);
+    this.grid = new Grid(
+      SceneManager.TERRAIN_SIZE,
+      SceneManager.GRID_DIVISIONS,
+      SceneManager.GRID_HEIGHT,
+    );
+
     this.skybox = new Skybox();
     this.skybox.setSunPosition(this.lightingConfig.sun.position);
 
