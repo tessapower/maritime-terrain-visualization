@@ -51,33 +51,38 @@ export class Mountain {
 
   private generateHeights(): void {
     logger.log("GENERATING MOUNTAIN...");
-    //const heightMap = MountainGenerator.generateRadial(257, 257);
-    const heightMap = MountainGenerator.generateParallelRidges(
-      257,
-      257,
-      4, // ridgeHeight
-      80, // ridgeWidth (narrower = sharper peak)
-      100, // numPeaks
+    //const heightMap = MountainGenerator.generateRadial(257, 257, 100);
+    const heightMap = MountainGenerator.generateRidgeline(
+      this.segments + 1,
+      this.segments + 1,
+      100,
+      10,
+      1,
+      60,
     );
 
-    const erosion = new BeyerErosion(
-      {
-        iterations: 50000,
-        inertia: 0.3,
-        capacity: 8,
-        minSlope: 0.01,
-        erosionSpeed: 0.7,
-        depositionSpeed: 0.2,
-        evaporationSpeed: 0.02,
-        gravity: 9.8,
-        maxPath: 64,
-        erosionRadius: 4,
-        enableBlurring: true,
-        blurRadius: 1,
-        blendFactor: 0.5,
-      },
-      0,
-    );
+    const erosion = new BeyerErosion({
+      iterations: 50000,
+      inertia: 0.3,
+      capacity: 8,
+      minSlope: 0.01,
+      erosionSpeed: 0.4,
+      depositionSpeed: 0.1,
+      evaporationSpeed: 0.02,
+      gravity: 6,
+      maxPath: 32,
+      erosionRadius: 4,
+      depositionRadius: 10,
+      minLifetime: 0.5,
+      maxLifetime: 1.5,
+      minWater: 0.7,
+      maxWater: 1.3,
+      enableBlurring: true,
+      blurRadius: 1,
+      blendFactor: 0.5,
+      trackDroplets: true,
+      numDropletsToTrack: 500,
+    });
 
     erosion.erode(heightMap, 257, 257);
 
