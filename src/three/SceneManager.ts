@@ -17,8 +17,8 @@ import Stats from "stats.js";
  * and resource cleanup.
  */
 export class SceneManager {
-  private static readonly TERRAIN_SIZE = 2000;
-  private static readonly TERRAIN_RESOLUTION = 1024;
+  private static readonly TERRAIN_SIZE = 512;
+  private static readonly TERRAIN_RESOLUTION = 256;
 
   private static readonly GRID_DIVISIONS: number = 1000;
   private static readonly GRID_HEIGHT: number = 0.8;
