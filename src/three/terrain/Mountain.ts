@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { logger } from "../utils/Logger";
 import { MountainGenerator } from "./MountainGenerator.ts";
 import { BeyerErosion } from "./BeyerErosion.ts";
+import type { RandomFn } from "../utils/Random.ts";
 /**
  * Manages mountain mesh creation, shader material, and height generation.
  *
@@ -19,10 +20,13 @@ export class Mountain {
   private readonly material: THREE.MeshStandardMaterial;
   private readonly segments: number;
   private readonly size: number;
+  private readonly mountainGenerator: MountainGenerator;
+  private readonly rng: RandomFn;
 
   constructor(
     size: number = Mountain.DEFAULT_SIZE,
     resolution: number = Mountain.DEFAULT_RESOLUTION,
+    rng: RandomFn,
   ) {
     this.size = size;
     this.segments = resolution;
@@ -30,6 +34,8 @@ export class Mountain {
     // Create initial terrain
     this.material = new THREE.MeshStandardMaterial();
     this.mesh = this.createMesh();
+    this.mountainGenerator = new MountainGenerator(rng);
+    this.rng = rng;
     this.generateHeights();
   }
 
@@ -51,15 +57,15 @@ export class Mountain {
 
   private generateHeights(): void {
     logger.log("GENERATING MOUNTAIN...");
-    //const heightMap = MountainGenerator.generateRadial(257, 257, 100);
-    const heightMap = MountainGenerator.generateRidgeline(
-      this.segments + 1,
-      this.segments + 1,
-      100,
-      10,
-      1,
-      60,
-    );
+    const heightMap = this.mountainGenerator.generateRadial(257, 257, 100);
+    // const heightMap = this.mountainGenerator.generateRidgeline(
+    //   this.segments + 1,
+    //   this.segments + 1,
+    //   100,
+    //   10,
+    //   1,
+    //   60,
+    // );
 
     const erosion = new BeyerErosion({
       iterations: 50000,
@@ -80,6 +86,7 @@ export class Mountain {
       enableBlurring: true,
       blurRadius: 1,
       blendFactor: 0.5,
+      randomFn: this.rng,
     });
 
     erosion.erode(heightMap, 257, 257);

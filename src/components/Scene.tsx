@@ -5,7 +5,7 @@
 // Cleans up resources on component unmount.
 
 import { useEffect, useRef } from "react";
-import { SceneMgr } from "../three/SceneMgr";
+import { SceneManager } from "../three/SceneManager";
 
 /**
  * Main React component for rendering the Three.js scene.
@@ -14,13 +14,13 @@ import { SceneMgr } from "../three/SceneMgr";
  */
 export const Scene = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sceneManagerRef = useRef<SceneMgr | null>(null);
+  const sceneManagerRef = useRef<SceneManager | null>(null);
 
   useEffect((): (() => void) | undefined => {
     if (!canvasRef.current) return;
 
     // Initialize Three.js scene
-    sceneManagerRef.current = new SceneMgr(canvasRef.current);
+    sceneManagerRef.current = new SceneManager(canvasRef.current);
     sceneManagerRef.current.start();
 
     // Cleanup

@@ -1,9 +1,14 @@
 // MountainGenerator.ts: generates various simple mountain terrains
 
 import { createNoise2D, type NoiseFunction2D } from "simplex-noise";
+import { type RandomFn } from "../utils/Random";
 
 export class MountainGenerator {
-  private static simplex: NoiseFunction2D = createNoise2D();
+  private readonly simplex: NoiseFunction2D;
+
+  constructor(randomFn: RandomFn) {
+    this.simplex = createNoise2D(randomFn);
+  }
 
   /**
    * Generates a mountain ridgeline running through the center
@@ -14,7 +19,7 @@ export class MountainGenerator {
    * @param numPeaks - Number of peaks along the ridge (default: 4)
    * @param angle - Angle of the ridge in degrees, 0 = horizontal (default: 0)
    */
-  static generateRidgeline(
+  generateRidgeline(
     width: number,
     height: number,
     ridgeHeight: number = 100,
@@ -84,7 +89,7 @@ export class MountainGenerator {
   /**
    * Generates a simple radial mountain (original function)
    */
-  static generateRadial(
+  generateRadial(
     width: number,
     height: number,
     maxHeight: number = 100,
@@ -112,7 +117,7 @@ export class MountainGenerator {
   /**
    * Generates multiple parallel ridges
    */
-  static generateParallelRidges(
+  generateParallelRidges(
     width: number,
     height: number,
     numRidges: number = 3,

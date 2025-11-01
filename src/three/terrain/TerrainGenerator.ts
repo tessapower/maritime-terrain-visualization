@@ -8,6 +8,7 @@ import {
   lerp,
 } from "../utils/Math";
 import { logger } from "../utils/Logger.ts";
+import type { RandomFn } from "../utils/Random.ts";
 
 /**
  * Generates procedural terrain heightmaps using noise,
@@ -57,13 +58,13 @@ export default class TerrainGenerator {
 
   private static readonly DEFAULT_EDGE_FALLOFF: number = 0.2;
 
-
   // returns a value between -1 and 1
-  private readonly simplex: NoiseFunction2D = createNoise2D();
+  private readonly simplex: NoiseFunction2D;
 
   private readonly size: number;
   private readonly widthSegments: number;
   private readonly heightSegments: number;
+  private readonly rng: RandomFn;
 
   // Non-editable parameters
   private readonly waterLevel: number = TerrainGenerator.DEFAULT_WATER_LEVEL;
@@ -102,12 +103,16 @@ export default class TerrainGenerator {
     size: number = TerrainGenerator.DEFAULT_SIZE,
     widthSegments: number = TerrainGenerator.DEFAULT_WIDTH_SEGMENTS,
     heightSegments: number = TerrainGenerator.DEFAULT_HEIGHT_SEGMENTS,
+    rng: RandomFn,
   ) {
     logger.log("SYSTEM: INITIALIZING TERRAIN GENERATOR");
 
     this.size = size;
     this.widthSegments = widthSegments;
     this.heightSegments = heightSegments;
+
+    this.rng = rng;
+    this.simplex = createNoise2D(this.rng);
 
     this.seedPoints = this.generateSeedPoints(widthSegments, heightSegments);
   }
@@ -351,8 +356,8 @@ export default class TerrainGenerator {
     let landHeight =
       islands * this.islandsWeight +
       terrain * this.terrainWeight +
-        // TODO: Decide if ridgedNoise is worth keeping around after introducing erosion
-        // this.peaks * this.peaksWeight;
+      // TODO: Decide if ridgedNoise is worth keeping around after introducing erosion
+      // this.peaks * this.peaksWeight;
       this.peaksAmplitude * this.peaksWeight;
 
     // Apply edge falloff

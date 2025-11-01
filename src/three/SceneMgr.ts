@@ -8,6 +8,7 @@ import { OrbitalCamera } from "./camera/OrbitalCamera";
 import { Skybox } from "./skybox/Skybox.ts";
 import Stats from "stats.js";
 import { Landscape } from "./terrain/Landscape.ts";
+// import { Mountain } from "./terrain/Mountain.ts";
 
 /**
  * Orchestrates the Three.js scene, including landscape, lighting, camera, and
@@ -25,6 +26,7 @@ export class SceneMgr {
   private animationId: number | null = null;
 
   private readonly landscape: Landscape;
+  // private readonly mountain: Mountain;
 
   private guiManager: GuiManager;
   private skybox: Skybox;
@@ -110,6 +112,11 @@ export class SceneMgr {
       SceneMgr.TERRAIN_RESOLUTION,
       seededRandomFn,
     );
+    // this.mountain = new Mountain(
+    //   SceneMgr.TERRAIN_SIZE,
+    //   SceneMgr.TERRAIN_RESOLUTION,
+    //   seededRandomFn,
+    // );
 
     this.skybox = new Skybox();
     this.skybox.setSunPosition(this.lightingConfig.sun.position);
@@ -133,6 +140,7 @@ export class SceneMgr {
     this.scene.background = new THREE.Color(0x232935);
 
     this.scene.add(this.landscape.getMesh());
+    // this.scene.add(this.mountain.getMesh());
     this.scene.add(this.skybox.getMesh());
 
     // Setup lighting
@@ -220,6 +228,7 @@ export class SceneMgr {
 
     // Dispose scene objects
     this.landscape.dispose();
+    // this.mountain.dispose();
     this.skybox.dispose();
     this.guiManager.dispose();
 

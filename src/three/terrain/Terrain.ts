@@ -5,6 +5,8 @@ import TerrainGenerator from "./TerrainGenerator";
 import { logger } from "../utils/Logger";
 import vertShader from "../../shaders/unified/unified.vs.glsl?raw";
 import fragShader from "../../shaders/unified/unified.fs.glsl?raw";
+import type { RandomFn } from "../utils/Random.ts";
+import { createPlaneMesh } from "../utils/Plane.ts";
 /**
  * Manages terrain mesh creation, shader material, and height generation.
  *
@@ -61,6 +63,7 @@ export class Terrain {
   constructor(
     size: number = Terrain.DEFAULT_SIZE,
     resolution: number = Terrain.DEFAULT_RESOLUTION,
+    rng: RandomFn,
   ) {
     this.size = size;
     this.segments = resolution;
@@ -68,30 +71,15 @@ export class Terrain {
       this.size,
       this.segments + 1,
       this.segments + 1,
+      rng,
     );
 
     this.generator.landCutOff = this.topoConfig.u_landCutOff.value;
 
     // Create initial terrain
     this.material = this.createMaterial();
-    this.mesh = this.createTerrainMesh();
+    this.mesh = createPlaneMesh(this.size, this.segments, this.material);
     this.generateHeights();
-  }
-
-  private createTerrainMesh(): THREE.Mesh {
-    const geometry = new THREE.PlaneGeometry(
-      this.size,
-      this.size,
-      this.segments,
-      this.segments,
-    );
-
-    const mesh = new THREE.Mesh(geometry, this.material);
-    mesh.rotation.x = -Math.PI / 2; // Rotate to lay flat
-    mesh.receiveShadow = true;
-    mesh.castShadow = true;
-
-    return mesh;
   }
 
   private createMaterial(): THREE.ShaderMaterial {
