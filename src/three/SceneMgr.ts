@@ -17,6 +17,7 @@ import { Landscape } from "./terrain/Landscape.ts";
 export class SceneMgr {
   private static readonly TERRAIN_SIZE: number = 512;
   private static readonly TERRAIN_RESOLUTION: number = 256;
+  private static readonly RANDOM_SEED: number = 42;
 
   private readonly canvas: HTMLCanvasElement;
   private readonly scene: THREE.Scene;
@@ -99,9 +100,15 @@ export class SceneMgr {
 
     logger.log("RENDERER: INITIALIZED ✓");
 
+    // Initialize the seeded random generator
+    THREE.MathUtils.seededRandom(SceneMgr.RANDOM_SEED);
+    // Create a wrapper function that calls the seeded random without arguments
+    const seededRandomFn = () => THREE.MathUtils.seededRandom();
+
     this.landscape = new Landscape(
       SceneMgr.TERRAIN_SIZE,
       SceneMgr.TERRAIN_RESOLUTION,
+      seededRandomFn,
     );
 
     this.skybox = new Skybox();

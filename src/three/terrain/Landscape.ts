@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { logger } from "../utils/Logger";
 import LandscapeGenerator from "./LandscapeGenerator.ts";
+import type { RandomFn } from "../utils/Random.ts";
 /**
  * Manages landscape mesh creation, shader material, and height generation.
  */
@@ -19,12 +20,14 @@ export class Landscape {
   constructor(
     size: number = Landscape.DEFAULT_SIZE,
     resolution: number = Landscape.DEFAULT_RESOLUTION,
+    rng: RandomFn,
   ) {
     this.size = size;
     this.segments = resolution;
     this.generator = new LandscapeGenerator(
       this.segments + 1,
       this.segments + 1,
+      rng,
     );
 
     // Create initial terrain

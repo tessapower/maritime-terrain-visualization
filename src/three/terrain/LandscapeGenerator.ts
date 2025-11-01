@@ -1,6 +1,7 @@
 // LandscapeGenerator.ts: generates a landscape procedurally
 
 import { createNoise2D, type NoiseFunction2D } from "simplex-noise";
+import { type RandomFn } from "../utils/Random.ts";
 import { logger } from "../utils/Logger.ts";
 import { BeyerErosion } from "./BeyerErosion.ts";
 
@@ -30,7 +31,7 @@ export default class LandscapeGenerator {
   private readonly erosionSimulator: BeyerErosion;
 
   // returns a value between -1 and 1
-  private readonly simplex: NoiseFunction2D = createNoise2D();
+  private readonly simplex: NoiseFunction2D;
 
   private readonly widthSegments: number;
   private readonly heightSegments: number;
@@ -38,11 +39,13 @@ export default class LandscapeGenerator {
   constructor(
     widthSegments: number = LandscapeGenerator.DEFAULT_WIDTH_SEGMENTS,
     heightSegments: number = LandscapeGenerator.DEFAULT_HEIGHT_SEGMENTS,
+    rng: RandomFn,
   ) {
     logger.log("SYSTEM: INITIALIZING LANDSCAPE GENERATOR");
 
     this.widthSegments = widthSegments;
     this.heightSegments = heightSegments;
+    this.simplex = createNoise2D(rng);
 
     this.erosionSimulator = new BeyerErosion({
       iterations: 50000,
@@ -63,6 +66,7 @@ export default class LandscapeGenerator {
       enableBlurring: true,
       blurRadius: 1,
       blendFactor: 0.5,
+      randomFn: rng,
     });
   }
 

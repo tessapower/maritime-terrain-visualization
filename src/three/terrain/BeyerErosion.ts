@@ -3,6 +3,7 @@
 import { logger } from "../utils/Logger";
 import Droplet from "./Droplet";
 import * as THREE from "three";
+import { type RandomFn } from "../utils/Random.ts";
 
 export interface ErosionParams {
   // Core simulation parameters
@@ -28,6 +29,7 @@ export interface ErosionParams {
   enableBlurring: boolean; // Enable change map blurring
   blurRadius: number; // Blur kernel radius
   blendFactor: number; // Blend between blurred/unblurred (0-1)
+  randomFn: RandomFn; // Random function for reproducibility
 }
 
 export class BeyerErosion {
@@ -55,6 +57,7 @@ export class BeyerErosion {
     enableBlurring: true,
     blurRadius: 1,
     blendFactor: 0.5,
+    randomFn: Math.random,
   };
 
   constructor(params: Partial<ErosionParams> = {}) {
@@ -120,8 +123,8 @@ export class BeyerErosion {
   ): void {
     // Initialize droplet at random position
     const startPosition: THREE.Vector2 = new THREE.Vector2(
-      Math.random() * width,
-      Math.random() * height,
+      this.params.randomFn() * width,
+      this.params.randomFn() * height,
     );
 
     // Create droplet instance
@@ -130,13 +133,14 @@ export class BeyerErosion {
     // Random initial water (70% to 130% by default)
     const initialWater =
       this.params.minWater +
-      Math.random() * (this.params.maxWater - this.params.minWater);
+      this.params.randomFn() * (this.params.maxWater - this.params.minWater);
     droplet.water = initialWater;
 
     // Random droplet lifetime (50% to 150% of maxPath by default)
     const lifetimeMultiplier =
       this.params.minLifetime +
-      Math.random() * (this.params.maxLifetime - this.params.minLifetime);
+      this.params.randomFn() *
+        (this.params.maxLifetime - this.params.minLifetime);
     const dropletMaxPath = Math.floor(this.params.maxPath * lifetimeMultiplier);
 
     for (let step = 0; step < dropletMaxPath; step++) {
@@ -167,7 +171,7 @@ export class BeyerErosion {
       if (droplet.direction.length() < BeyerErosion.EPSILON) {
         // Direction is zero - pick random direction, ensuring direction is
         // normalized
-        const angle = Math.random() * Math.PI * 2;
+        const angle = this.params.randomFn() * Math.PI * 2;
         droplet.direction = new THREE.Vector2(Math.cos(angle), Math.sin(angle));
         droplet.direction.normalize();
       }
