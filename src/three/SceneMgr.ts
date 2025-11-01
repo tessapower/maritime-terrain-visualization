@@ -15,8 +15,8 @@ import { Landscape } from "./terrain/Landscape.ts";
  * resource cleanup.
  */
 export class SceneMgr {
-  private static readonly TERRAIN_SIZE = 512;
-  private static readonly TERRAIN_RESOLUTION = 256;
+  private static readonly TERRAIN_SIZE: number = 512;
+  private static readonly TERRAIN_RESOLUTION: number = 256;
 
   private readonly canvas: HTMLCanvasElement;
   private readonly scene: THREE.Scene;

@@ -80,8 +80,6 @@ export class Mountain {
       enableBlurring: true,
       blurRadius: 1,
       blendFactor: 0.5,
-      trackDroplets: true,
-      numDropletsToTrack: 500,
     });
 
     erosion.erode(heightMap, 257, 257);

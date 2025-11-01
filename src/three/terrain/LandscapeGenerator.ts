@@ -63,8 +63,6 @@ export default class LandscapeGenerator {
       enableBlurring: true,
       blurRadius: 1,
       blendFactor: 0.5,
-      trackDroplets: false,
-      numDropletsToTrack: 10,
     });
   }
 
@@ -78,8 +76,6 @@ export default class LandscapeGenerator {
   /**
    * Generates a height map for a plane with widthSegments x heightSegments.
    *
-   * @param sameSeed If true, uses the same seed points as last time to
-   * generate similar islands
    * @param applyErosion If true, uses an erosion simulator to apply
    * hydraulic erosion.
    */
